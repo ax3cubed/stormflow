@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { generateImage } from "@/ai/nano-banana";
+import { generateImage, saveImage } from "@/ai/nano-banana";
 import { makeTool } from "@/ai/tools";
 import { Canvas, CanvasRef } from "@/canvas/Canvas";
 import {
@@ -28,8 +28,7 @@ import {
   DocumentProvider,
   useDocumentContext,
 } from "@/document/DocumentProvider";
-import { MEDIA_ROOT_PATH, UNTITLED_DOC_TITLE } from "@/document/model-and-db";
-import { storage } from "@/firebase";
+import { UNTITLED_DOC_TITLE } from "@/document/model-and-db";
 import { DEFAULT_MODEL, LiveAPI, LiveAPIContext } from "@/live/LiveAPI";
 import LiveButton from "@/live/LiveButton";
 import { WakeWordRecognizer } from "@/live/WakeWordRecognizer";
@@ -38,12 +37,8 @@ import { usePrefsContext } from "@/util/PrefsProvider";
 import { useWindowFocused } from "@/util/use-window-focused";
 import { DropdownMenu, IconButton, Spinner, Tooltip } from "@radix-ui/themes";
 import { Node } from "@xyflow/react";
+import cn from "classnames";
 import { child } from "firebase/database";
-import {
-  getDownloadURL,
-  ref as storageRef,
-  uploadBytes,
-} from "firebase/storage";
 import {
   BananaIcon,
   CodeIcon,
@@ -57,14 +52,13 @@ import {
 import { useEffect, useRef, useState } from "react";
 import z from "zod";
 import styles from "./Editor.module.scss";
+import { useGeminiApi } from "./ai";
 import { NodeInspectorPanel } from "./canvas/NodeInspectorPanel";
 import { MiniAppNodeData, miniAppNodes } from "./canvas/nodes/MiniAppNode";
 import { Splitter } from "./components/splitter/Splitter";
 import JulesIcon from "./icons/JulesIcon";
 import { generateMiniApp } from "./miniapp-generator/miniapp-generator";
 import { screenshotMiniApp } from "./miniapp/screenshotter";
-import cn from "classnames";
-import { useGeminiApi } from "./ai";
 
 type Props = { docId: string };
 
@@ -222,12 +216,7 @@ Image prompt:
 ${prompt}
 `.trim(),
     });
-    let storagePath = `${MEDIA_ROOT_PATH}/${docId}/${nodeId}.png`;
-    let res = await uploadBytes(
-      storageRef(storage, storagePath),
-      await fetch(imageDataUrl).then((r) => r.blob()),
-    );
-    let imageUrl = await getDownloadURL(res.ref);
+    let imageUrl = await saveImage(imageDataUrl, `${docId}/${nodeId}`);
     updateNode(nodeId, {
       data: {
         prompt,
@@ -335,12 +324,7 @@ ${prompt}
         width: 800,
         height: 600,
       });
-      let storagePath = `${MEDIA_ROOT_PATH}/${docId}/${nodeId}.png`;
-      let res = await uploadBytes(
-        storageRef(storage, storagePath),
-        await fetch(screenshotDataUrl).then((r) => r.blob()),
-      );
-      thumbnailUrl = await getDownloadURL(res.ref);
+      thumbnailUrl = await saveImage(screenshotDataUrl, `${docId}/${nodeId}`);
     } catch (e) {
       console.warn(e);
     }

@@ -26,6 +26,7 @@ import {
 } from "react";
 import { DOC_ROOT_PATH, DocMetadata, USERINFO_ROOT_PATH } from "./model-and-db";
 import { generateId } from "./util";
+import { stripUndefined } from "@/util/primitives-util";
 
 const FORK_KEYS_TO_COPY = ["metadata", "canvas"];
 
@@ -71,11 +72,11 @@ export function DocumentProvider({
         ...metadata,
         ...updates,
       };
-      update(child(docRef, "metadata"), updates);
+      update(child(docRef, "metadata"), stripUndefined(updates));
       if (userRef.current?.uid && merged.creatorUid === userRef.current.uid) {
         update(
           ref(db, `${USERINFO_ROOT_PATH}/${userRef.current.uid}/docs/${docId}`),
-          updates
+          stripUndefined(updates),
         );
       }
       return merged;
@@ -97,7 +98,7 @@ export function DocumentProvider({
     set(docRef, { deleted: true, metadata: { creatorUid: "deleted" } });
     userRef.current &&
       remove(
-        ref(db, `${USERINFO_ROOT_PATH}/${userRef.current.uid}/docs/${docId}`)
+        ref(db, `${USERINFO_ROOT_PATH}/${userRef.current.uid}/docs/${docId}`),
       );
     window.location.pathname = "/";
   }, [docId]);
@@ -120,7 +121,7 @@ export function DocumentProvider({
     userRef.current &&
       (await set(
         ref(db, `${USERINFO_ROOT_PATH}/${userRef.current.uid}/docs/${newId}`),
-        newDoc.metadata
+        newDoc.metadata,
       ));
     window.open(newId);
   }, []);
