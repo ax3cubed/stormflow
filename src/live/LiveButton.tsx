@@ -55,16 +55,15 @@ const LiveButton = forwardRef<HTMLButtonElement, Props>(({ ...props }, ref) => {
 
   useEffect(() => {
     if (!outputStream || !connected || geminiLiveInMeeting) return;
-    let audioEl = document.createElement("audio");
-    document.documentElement.appendChild(audioEl);
-    audioEl.hidden = true;
-    audioEl.autoplay = true;
-    audioEl.srcObject = outputStream;
-    audioEl.play();
+    // Use Web Audio API to play the MediaStream instead of an <audio> element.
+    // Chrome's <audio> element has a jitter buffer that speeds up MediaStream
+    // playback to "catch up" to the live edge, causing pitch/speed artifacts.
+    let playbackCtx = new AudioContext();
+    let source = playbackCtx.createMediaStreamSource(outputStream);
+    source.connect(playbackCtx.destination);
     return () => {
-      audioEl.pause();
-      audioEl.srcObject = null;
-      audioEl.remove();
+      source.disconnect();
+      playbackCtx.close();
     };
   }, [connected, outputStream, geminiLiveInMeeting]);
 

@@ -313,16 +313,14 @@ function useLiveAPI({
 
   useEffect(() => {
     if (customOutputStream || !outputStream || !connected) return;
-    let audioEl = document.createElement("audio");
-    document.documentElement.appendChild(audioEl);
-    audioEl.hidden = true;
-    audioEl.autoplay = true;
-    audioEl.srcObject = outputStream;
-    audioEl.play();
+    // Use Web Audio API instead of <audio> element to avoid Chrome's
+    // jitter buffer that causes pitch/speed artifacts on MediaStreams.
+    let playbackCtx = new AudioContext();
+    let source = playbackCtx.createMediaStreamSource(outputStream);
+    source.connect(playbackCtx.destination);
     return () => {
-      audioEl.pause();
-      audioEl.srcObject = null;
-      audioEl.remove();
+      source.disconnect();
+      playbackCtx.close();
     };
   }, [connected, customOutputStream, outputStream]);
 
