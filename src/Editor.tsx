@@ -499,7 +499,7 @@ ${prompt}
       onSetupComplete={async () => {
         let dataUrl = await canvasRef.current!.captureScreenshot();
         liveApiRef.current?.session?.sendRealtimeInput({
-          media: {
+          video: {
             data: dataUrl.split(",")[1],
             mimeType: "image/png",
           },

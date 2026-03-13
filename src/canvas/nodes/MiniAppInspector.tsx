@@ -5,7 +5,7 @@
  */
 
 import { MiniAppHost } from "@/miniapp/MiniAppHost";
-import { Flex, Text } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import { NodeProps } from "@xyflow/react";
 import { MousePointerClickIcon } from "lucide-react";
 import styles from "./MiniAppInspector.module.scss";
