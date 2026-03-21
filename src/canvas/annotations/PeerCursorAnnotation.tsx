@@ -25,12 +25,14 @@ export type PeerCursorAnnotation = ReturnType<
 type PeerCursorAnnotationData = {
   name: string;
   color: string;
+  aiGlow?: boolean;
   hidden?: boolean; // for animating gemini visible/invisible
 };
 
 function PeerCursorAnnotation(props: NodeProps) {
   const zoom = useStore((s) => s.transform[2]);
-  const { color, name, hidden } = props.data as PeerCursorAnnotationData;
+  const { color, name, hidden, aiGlow } =
+    props.data as PeerCursorAnnotationData;
   const dark = useMemo(() => tinycolor(color).isDark(), [color]);
 
   return (
@@ -38,6 +40,7 @@ function PeerCursorAnnotation(props: NodeProps) {
       className={cn(styles.peerCursorAnnotation, {
         [styles.isHidden]: hidden,
         [styles.isDark]: dark,
+        [styles.isAiGlow]: aiGlow,
       })}
       style={{
         ["--color" as any]: color,

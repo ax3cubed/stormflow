@@ -139,6 +139,7 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
           data: {
             name: "Gemini",
             color: "#0091ff",
+            aiGlow: true,
             hidden: smoothedAiCursor.hidden,
           },
         }),
