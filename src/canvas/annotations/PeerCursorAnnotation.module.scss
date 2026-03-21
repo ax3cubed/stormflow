@@ -4,3 +4,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+.peerCursorAnnotation {
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  position: relative;
+
+  &.isHidden {
+    opacity: 0;
+  }
+
+  .label {
+    position: absolute;
+    left: 80%;
+    top: 50%;
+    background-color: var(--color);
+    color: black;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 16px;
+    border-radius: 999px;
+  }
+
+  &.isDark .label {
+    color: white;
+  }
+}

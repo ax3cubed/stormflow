@@ -15,6 +15,7 @@ import {
   NodeTypes,
   ReactFlow,
   ReactFlowInstance,
+  XYPosition,
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
@@ -26,6 +27,7 @@ import cn from "classnames";
 import { toPng } from "html-to-image";
 import {
   forwardRef,
+  useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -50,7 +52,7 @@ const nodeTypes: NodeTypes = Object.fromEntries(
   Object.values({ ...nodeFactories, ...annotationFactories }).map((n) => [
     n.type,
     n.component as React.ComponentType<any>,
-  ])
+  ]),
 );
 
 const fitViewOptions: FitViewOptions = {
@@ -66,6 +68,7 @@ const fitBoundsOptions: FitBoundsOptions = {
 export type CanvasRef = {
   fit: () => void;
   panTo: (...nodes: Node[]) => void;
+  pointAtCenter: () => XYPosition;
   captureScreenshot: () => Promise<string>;
 };
 
@@ -74,13 +77,48 @@ type Props = { className?: string };
 export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
   const reactFlowNodeRef = useRef<HTMLDivElement>(null);
   const [reactFlow, setReactFlow] = useState<ReactFlowInstance>();
-  const { nodes, edges, setNodes, setEdges, commentMode } =
+  const { nodes, edges, setNodes, setEdges, commentMode, aiCursor } =
     useCanvasDataContext();
   const { peers, setAppData } = usePresenceContext();
+  const [smoothedAiCursor, setSmoothedAiCursor] = useState<
+    XYPosition & { hidden: boolean }
+  >({ x: 0, y: 0, hidden: true });
+
+  useEffect(() => {
+    if (!aiCursor) {
+      setSmoothedAiCursor((prev) => ({ ...prev, hidden: true }));
+      return;
+    }
+
+    let cancel = false;
+    setSmoothedAiCursor((prev) => {
+      // when going from invisible to visible, teleport to the new position
+      if (prev.hidden) return { ...aiCursor, hidden: false };
+
+      // smoothly animate from previous position to another
+      let nx = prev.x;
+      let ny = prev.y;
+      let alpha = 0.3;
+      let tick = () => {
+        if (cancel) return;
+        nx = nx + (aiCursor.x - nx) * alpha;
+        ny = ny + (aiCursor.y - ny) * alpha;
+        if (Math.abs(nx - aiCursor.x) < 1 && Math.abs(ny - aiCursor.y) < 1) {
+          setSmoothedAiCursor({ ...aiCursor, hidden: false });
+        } else {
+          setSmoothedAiCursor({ x: nx, y: ny, hidden: false });
+          requestAnimationFrame(tick);
+        }
+      };
+      requestAnimationFrame(tick);
+      return prev;
+    });
+    return () => void (cancel = true);
+  }, [aiCursor]);
 
   const annotations = useMemo<PeerCursorAnnotation[]>(() => {
-    return peers.flatMap((p) => {
-      return p.appData?.canvasCursorPos
+    let annotations = peers.flatMap((p) =>
+      p.appData?.canvasCursorPos
         ? [
             peerCursorAnnotations.make({
               id: `annotation:peerCursor:${p.uid}`,
@@ -91,9 +129,23 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
               data: { name: p.displayName, color: p.color },
             }),
           ]
-        : [];
-    });
-  }, [peers]);
+        : [],
+    );
+    if (smoothedAiCursor) {
+      annotations.push(
+        peerCursorAnnotations.make({
+          id: `annotation:aiCursor`,
+          position: smoothedAiCursor,
+          data: {
+            name: "Gemini",
+            color: "#0091ff",
+            hidden: smoothedAiCursor.hidden,
+          },
+        }),
+      );
+    }
+    return annotations;
+  }, [peers, smoothedAiCursor]);
 
   useImperativeHandle(
     ref,
@@ -102,7 +154,9 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
         if (!reactFlow) return;
         // this stopped working for some reason
         // reactFlow.fitView(fitViewOptions);
-        let bounds = reactFlow.getNodesBounds(reactFlow.getNodes());
+        let bounds = reactFlow.getNodesBounds(
+          reactFlow.getNodes().filter((n) => !n.hidden),
+        );
         bounds.height += 100;
         reactFlow.fitBounds(bounds, fitBoundsOptions);
       },
@@ -118,6 +172,14 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
           let bounds = reactFlow.getNodesBounds(nodes);
           reactFlow.fitBounds(bounds);
         }
+      },
+      pointAtCenter: () => {
+        let bounds = reactFlowNodeRef.current?.getBoundingClientRect();
+        if (!bounds || !reactFlow) return { x: 0, y: 0 };
+        return reactFlow.screenToFlowPosition({
+          x: bounds.left + bounds.width / 2,
+          y: bounds.top + bounds.height / 2,
+        });
       },
       captureScreenshot: async () => {
         if (!reactFlow) throw new Error("ReactFlow not initialized");
@@ -141,14 +203,14 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
           imageHeight,
           0.5,
           2,
-          { x: 0, y: 0 }
+          { x: 0, y: 0 },
         );
 
         let png: string | null = null;
         try {
           png = await toPng(
             reactFlowNodeRef.current!.querySelector(
-              ".react-flow__viewport"
+              ".react-flow__viewport",
             ) as HTMLElement,
             {
               backgroundColor: "#000",
@@ -159,7 +221,7 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
                 height: `${imageHeight}px`,
                 transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
               },
-            }
+            },
           );
         } finally {
           revert();
@@ -167,7 +229,7 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
         return png;
       },
     }),
-    [reactFlow]
+    [reactFlow],
   );
 
   function maybeCreateComment(ev: React.MouseEvent) {
@@ -196,6 +258,7 @@ export const Canvas = forwardRef<CanvasRef, Props>(({ className }, ref) => {
         onInit={(reactFlow) =>
           setReactFlow(reactFlow as unknown as ReactFlowInstance<Node, Edge>)
         }
+        deleteKeyCode={["Backspace", "Delete"]}
         edgeTypes={edgeTypes}
         nodeTypes={nodeTypes}
         nodes={annotations.length ? [...annotations, ...nodes] : nodes}

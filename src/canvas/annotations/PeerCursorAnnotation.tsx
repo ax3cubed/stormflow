@@ -5,13 +5,17 @@
  */
 
 import { NodeProps, useStore } from "@xyflow/react";
+import cn from "classnames";
+import tinycolor from "tinycolor2";
 import { annotationFactory } from "./annotation-factory";
+import styles from "./PeerCursorAnnotation.module.scss";
+import { useMemo } from "react";
 
 export const peerCursorAnnotations =
   annotationFactory<PeerCursorAnnotationData>(
     "annotation:peerCursor",
     PeerCursorAnnotation,
-    { forceProps: { zIndex: 9999 } }
+    { forceProps: { selectable: false, draggable: false, zIndex: 9999 } },
   );
 
 export type PeerCursorAnnotation = ReturnType<
@@ -21,26 +25,39 @@ export type PeerCursorAnnotation = ReturnType<
 type PeerCursorAnnotationData = {
   name: string;
   color: string;
+  hidden?: boolean; // for animating gemini visible/invisible
 };
 
 function PeerCursorAnnotation(props: NodeProps) {
   const zoom = useStore((s) => s.transform[2]);
+  const { color, name, hidden } = props.data as PeerCursorAnnotationData;
+  const dark = useMemo(() => tinycolor(color).isDark(), [color]);
 
-  const { color } = props.data as PeerCursorAnnotationData;
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      transform={`scale(${1 / zoom}) translate(12 12)`}
-      fill={color}
-      stroke="#fff"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <div
+      className={cn(styles.peerCursorAnnotation, {
+        [styles.isHidden]: hidden,
+        [styles.isDark]: dark,
+      })}
+      style={{
+        ["--color" as any]: color,
+        transform: `scale(${1 / zoom}) translate(12px, 12px)`,
+      }}
     >
-      <path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z" />
-    </svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill={`var(--color)`}
+        stroke="#fff"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z" />
+      </svg>
+      {name && <div className={styles.label}>{name}</div>}
+    </div>
   );
 }

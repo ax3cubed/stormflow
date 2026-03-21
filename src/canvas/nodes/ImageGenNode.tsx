@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Spinner } from "@radix-ui/themes";
+import { Spinner, Tooltip } from "@radix-ui/themes";
 import { Text } from "@radix-ui/themes/components/callout";
 import { NodeProps } from "@xyflow/react";
 import { BananaIcon } from "lucide-react";
@@ -49,7 +49,9 @@ function ImageGenNode(props: NodeProps) {
           />
         )}
       </div>
-      <div className={styles.prompt}>{prompt}</div>
+      <Tooltip content={prompt} delayDuration={500}>
+        <div className={styles.prompt}>{prompt}</div>
+      </Tooltip>
     </BaseNode>
   );
 }

@@ -19,7 +19,9 @@ export function nodeFactory<TData extends Record<string, unknown>>(
     forceProps,
     Inspector,
   }: {
-    forceProps?: Partial<NodeProps>;
+    forceProps?:
+      | Partial<NodeProps>
+      | ((node?: Node<TData>) => Partial<NodeProps>);
     Inspector?: ReactComponent<NodeProps<any>> & {
       Label?: ReactComponent<NodeProps<any>>;
       Icon?: ReactComponent<NodeProps<any>>;
@@ -34,7 +36,7 @@ export function nodeFactory<TData extends Record<string, unknown>>(
     make: (node: Omit<Node<TData>, "type">) =>
       ({
         type,
-        ...forceProps,
+        ...(typeof forceProps === "function" ? forceProps(node) : forceProps),
         ...node,
       }) satisfies Node,
   };

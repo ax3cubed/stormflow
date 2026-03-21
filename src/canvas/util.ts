@@ -27,3 +27,24 @@ export function dataURItoBlob(dataURI: string) {
   let blob = new Blob([ab], { type: mimeString });
   return blob;
 }
+
+/**
+ * Calculates the shortest distance from a point (x, y) to a rectangle defined by its
+ * left, top, right, and bottom coordinates.
+ */
+export function distanceToRect(
+  x: number,
+  y: number,
+  l: number,
+  t: number,
+  r: number,
+  b: number,
+) {
+  const dx = Math.max(l - x, 0, x - r);
+  const dy = Math.max(t - y, 0, y - b);
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+export async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

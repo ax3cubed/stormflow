@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Edge, Node } from "@xyflow/react";
+import { Edge, Node, XYPosition } from "@xyflow/react";
 import { child, DatabaseReference, onValue, set } from "firebase/database";
 import React, {
   createContext,
@@ -38,11 +38,15 @@ type SerializedCanvasData = {
   >;
 };
 
+export type AICursor = XYPosition;
+
 export type CanvasDataContext = {
   dataLoading: boolean;
   nodes: Node[];
   edges: Edge[];
   commentMode: boolean;
+  aiCursor: AICursor | null;
+  setAiCursor: React.Dispatch<React.SetStateAction<AICursor | null>>;
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   getNode: (id: string) => Node | undefined;
@@ -56,7 +60,7 @@ export type CanvasDataContext = {
 };
 
 const CanvasDataContext = createContext<CanvasDataContext>(
-  {} as CanvasDataContext
+  {} as CanvasDataContext,
 );
 
 export function useCanvasDataContext() {
@@ -73,6 +77,7 @@ export function CanvasDataProvider({
   const [nodes, setNodesRaw] = useState<Node[]>([]);
   const [edges, setEdgesRaw] = useState<Edge[]>([]);
   const [commentMode, setCommentMode] = useState(false);
+  const [aiCursor, setAiCursor] = useState<XYPosition | null>(null);
   const [inspectingNode, setInspectingNode] = useState<string | undefined>();
 
   // Sync canvas from RTDB
@@ -86,7 +91,7 @@ export function CanvasDataProvider({
         let newNodes: Node[] = [];
         let newIds = new Set();
         let existingById = Object.fromEntries(
-          existingNodes.map((n) => [n.id, n])
+          existingNodes.map((n) => [n.id, n]),
         );
         for (let [id, n] of Object.entries(nodes || {})) {
           newIds.add(id);
@@ -105,7 +110,7 @@ export function CanvasDataProvider({
         let newEdges: Edge[] = [];
         let newIds = new Set();
         let existingById = Object.fromEntries(
-          existingEdges.map((e) => [e.id, e])
+          existingEdges.map((e) => [e.id, e]),
         );
         for (let [id, e] of Object.entries(edges || {})) {
           newIds.add(id);
@@ -138,7 +143,7 @@ export function CanvasDataProvider({
               data: JSON.parse(JSON.stringify(n.data || null)), // remove undefineds
               position: n.position,
             },
-          ])
+          ]),
         ) satisfies SerializedCanvasData["nodes"];
         let vals = Object.values(valToSet);
         if (
@@ -152,7 +157,7 @@ export function CanvasDataProvider({
         return newNodes;
       });
     },
-    [String(dataRef), setNodesRaw]
+    [String(dataRef), setNodesRaw],
   );
 
   const setEdges = useCallback(
@@ -171,13 +176,13 @@ export function CanvasDataProvider({
                 type: e.type || null,
                 data: e.data || null,
               },
-            ])
-          ) satisfies SerializedCanvasData["edges"]
+            ]),
+          ) satisfies SerializedCanvasData["edges"],
         );
         return newEdges;
       });
     },
-    [String(dataRef), setNodesRaw]
+    [String(dataRef), setNodesRaw],
   );
 
   let context = useMemo<CanvasDataContext>(
@@ -202,9 +207,11 @@ export function CanvasDataProvider({
                     ...updates.data,
                   },
                 }
-              : n
-          )
+              : n,
+          ),
         ),
+      aiCursor,
+      setAiCursor,
       inspectingNode,
       inspectNode: (id: string) => setInspectingNode(id),
       closeInspector: () => setInspectingNode(undefined),
@@ -212,7 +219,7 @@ export function CanvasDataProvider({
       toggleCommentMode: (on) =>
         setCommentMode((cm) => (typeof on === "boolean" ? on : !cm)),
     }),
-    [nodes, edges, inspectingNode, commentMode]
+    [nodes, edges, inspectingNode, commentMode, aiCursor],
   );
 
   return (

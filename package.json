@@ -40,6 +40,7 @@
     "nanoid": "^5.1.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "tinycolor2": "^1.6.0",
     "tippy.js": "^6.3.7",
     "tiptap-markdown": "^0.9.0",
     "zod": "^4.1.12"
@@ -48,6 +49,7 @@
     "@types/matter-js": "^0.20.2",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/tinycolor2": "^1.4.6",
     "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-react": "^5.1.0",
     "sass": "^1.93.2",

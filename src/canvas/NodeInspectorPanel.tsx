@@ -70,7 +70,9 @@ export function NodeInspectorPanel({
         {!!node && !!nodeProps && !!Inspector ? (
           <Inspector {...nodeProps} />
         ) : (
-          <>No inspector for this node</>
+          <Text size="2" color="gray" style={{ margin: "auto" }}>
+            No inspector for this node
+          </Text>
         )}
       </div>
     </div>

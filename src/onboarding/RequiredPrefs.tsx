@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import GeminiIcon from "@/icons/GeminiIcon";
 import { Prefs, usePrefsContext } from "@/util/PrefsProvider";
 import { Flex, TextField } from "@radix-ui/themes";
-import { KeyIcon } from "lucide-react";
 
 export function areRequiredPrefsSet(prefs: Prefs) {
   return !!prefs.geminiApiKey;
@@ -27,7 +27,10 @@ export function RequiredPrefs() {
         onFocus={(ev) => ev.currentTarget.select()}
       >
         <TextField.Slot>
-          <KeyIcon size={16} />
+          <Flex align="center" gap="1">
+            <GeminiIcon size={16} />
+            {prefs.geminiApiKey && "Key"}
+          </Flex>
         </TextField.Slot>
       </TextField.Root>
     </Flex>

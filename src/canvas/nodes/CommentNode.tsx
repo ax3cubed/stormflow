@@ -18,7 +18,9 @@ import { nodeFactory } from "./node-factory";
 export const commentNodes = nodeFactory<CommentNodeData>(
   "comment",
   CommentNode,
-  { forceProps: { zIndex: 9999 } }
+  {
+    forceProps: (n) => ({ zIndex: 9999, hidden: n?.data?.resolved }),
+  },
 );
 
 export type CommentNode = ReturnType<(typeof commentNodes)["make"]>;
@@ -50,10 +52,6 @@ function CommentNode({ id, data, selected }: NodeProps<Node<CommentNodeData>>) {
     }
   }, [id, open, messages]);
 
-  if (data.resolved) {
-    return null; // don't render
-  }
-
   return (
     <Popover.Root open={open}>
       <Popover.Trigger>
@@ -77,6 +75,7 @@ function CommentNode({ id, data, selected }: NodeProps<Node<CommentNodeData>>) {
           onResolve={() => {
             updateNode(id, {
               selected: false,
+              hidden: true,
               data: { ...data, resolved: true } satisfies CommentNodeData,
             });
           }}

@@ -74,6 +74,9 @@ declare global {
       options?: { strict?: boolean },
     ): Uint8Array;
   }
+  interface Uint8Array {
+    toBase64(): string;
+  }
 }
 
 const LiveAPIContext = createContext<LiveAPIContext | undefined>(undefined);
@@ -88,6 +91,8 @@ export type LiveAPIContext = {
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
 };
+
+const DEFAULT_VOICE_NAME = "Zephyr";
 
 type KnownVoiceName =
   | "Zephyr"
@@ -122,9 +127,9 @@ type KnownVoiceName =
   | "Sulafat";
 
 export type LiveAPIProviderProps = {
-  model: KnownAudioModelName | (string & {});
-  voiceName: KnownVoiceName | (string & {});
-  systemInstruction: string;
+  model?: KnownAudioModelName | (string & {});
+  voiceName?: KnownVoiceName | (string & {});
+  systemInstruction?: string;
   tools?: Tool<any>[];
   rawConfig?: LiveConnectConfig;
   customOutputStream?: boolean;
@@ -138,11 +143,12 @@ function useLiveAPI({
   rawConfig,
   customOutputStream,
 }: LiveAPIProviderProps): LiveAPIContext {
+  const ai = useGeminiApi();
+
   // gemini's output audio
   const audioStreamerRef = useRef<AudioStreamer | null>(null);
   const [volume, setVolume] = useState(0);
   const [outputStream, setOutputStream] = useState<MediaStream | undefined>();
-  const ai = useGeminiApi();
 
   // live session info
   let sessionRef = useRef<Session>();
@@ -155,9 +161,11 @@ function useLiveAPI({
       systemInstruction,
       responseModalities: [Modality.AUDIO],
       proactivity: { proactiveAudio: true },
-      enableAffectiveDialog: true,
+      // enableAffectiveDialog: true,
       speechConfig: {
-        voiceConfig: { prebuiltVoiceConfig: { voiceName } },
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: voiceName || DEFAULT_VOICE_NAME },
+        },
       },
       tools: tools
         ? [
@@ -190,7 +198,7 @@ function useLiveAPI({
     try {
       let isCurrentSession = () => session === sessionRef.current;
       session = sessionRef.current = await ai.live.connect({
-        model,
+        model: model || DEFAULT_MODEL,
         config,
         callbacks: {
           onopen: () => {
@@ -272,7 +280,7 @@ function useLiveAPI({
         (ev: any) => setVolume(invLerpClamped(0, 0.2, ev.data.volume)),
       );
     })();
-  }, []);
+  }, [ai]);
 
   useEffect(() => {
     let handler = async (e: Event) => {
@@ -350,7 +358,7 @@ export const LiveAPI = forwardRef<
   useImperativeHandle(ref, () => liveAPI, [liveAPI]);
 
   useEffect(() => {
-    if (!onTurnComplete) return;
+    if (!onTurnComplete && !onSetupComplete) return;
     let abort = new AbortController();
     events.addEventListener(
       "turncomplete",
@@ -367,6 +375,8 @@ export const LiveAPI = forwardRef<
     </LiveAPIContext.Provider>
   );
 });
+
+export const LiveAPIContextConsumer = LiveAPIContext.Consumer;
 
 export const useLiveAPIContext = () => {
   const context = useContext(LiveAPIContext);

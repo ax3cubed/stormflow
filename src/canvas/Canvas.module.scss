@@ -30,6 +30,10 @@
       background-color: black;
     }
 
+    .react-flow__node[data-id*="annotation"] {
+      pointer-events: none !important;
+    }
+
     .react-flow__node.dragging,
     .react-flow__node.dragging>* {
       cursor: grabbing;

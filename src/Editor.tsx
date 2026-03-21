@@ -29,7 +29,7 @@ import {
   useDocumentContext,
 } from "@/document/DocumentProvider";
 import { UNTITLED_DOC_TITLE } from "@/document/model-and-db";
-import { DEFAULT_MODEL, LiveAPI, LiveAPIContext } from "@/live/LiveAPI";
+import { LiveAPI, LiveAPIContext } from "@/live/LiveAPI";
 import LiveButton from "@/live/LiveButton";
 import { WakeWordRecognizer } from "@/live/WakeWordRecognizer";
 import { MeetingProvider } from "@/meetings/MeetingProvider";
@@ -56,6 +56,7 @@ import styles from "./Editor.module.scss";
 import { useGeminiApi } from "./ai";
 import { NodeInspectorPanel } from "./canvas/NodeInspectorPanel";
 import { MiniAppNodeData, miniAppNodes } from "./canvas/nodes/MiniAppNode";
+import { distanceToRect, sleep } from "./canvas/util";
 import { Splitter } from "./components/splitter/Splitter";
 import { generateMiniApp } from "./miniapp-generator/miniapp-generator";
 import { screenshotMiniApp } from "./miniapp/screenshotter";
@@ -100,6 +101,7 @@ function EditorInner({ docId }: Props) {
     inspectingNode,
     commentMode,
     toggleCommentMode,
+    setAiCursor,
   } = useCanvasDataContext();
 
   useEffect(() => {
@@ -160,47 +162,80 @@ function EditorInner({ docId }: Props) {
 
   function findPositionNear(
     node: Node,
-    spacing = 250,
-    minSpacing = 150,
+    {
+      spacing = 250,
+      minSpacing = 150,
+      additionalNodesToAvoid,
+    }: {
+      spacing?: number;
+      minSpacing?: number;
+      additionalNodesToAvoid?: Node[];
+    } = {},
   ): { x: number; y: number } {
-    const angle = Math.random() * 360 * (Math.PI / 180);
     const ASPECT = 2; // how elliptical
+    let { x: nx, y: ny } = node.position;
+    let { x: vx, y: vy } = canvasRef.current?.pointAtCenter() || { x: 0, y: 0 };
+    let angle = Math.atan2(vy - ny, vx - nx);
     // propose location
-    for (let iter = 0; iter < 50; iter++) {
-      const x = node.position.x + spacing * Math.cos(angle);
-      const y = node.position.y + (spacing / ASPECT) * Math.sin(angle);
-      // check that the position is not overlapping other nodes
-      let tooCloseNode = nodes.find((n) => {
-        const dx = n.position.x - x;
-        const dy = n.position.y - y;
-        return Math.sqrt(dx * dx + dy * dy) < minSpacing;
-      });
+    for (let iter = 0; iter < 30; iter++) {
+      const x = nx + spacing * Math.cos(angle);
+      const y = ny + (spacing / ASPECT) * Math.sin(angle);
+      // check that the position is not overlapping other nodes, if so, try a different angle
+      let tooCloseNode = [...nodes, ...(additionalNodesToAvoid || [])].find(
+        (n) => {
+          if (n.hidden) return false;
+          let mw = n.measured?.width || 40;
+          let mh = n.measured?.height || 40;
+          let { x: n2x, y: n2y } = n.position;
+          return (
+            distanceToRect(
+              x,
+              y,
+              n2x - mw / 2,
+              n2y - mh / 2,
+              n2x + mw / 2,
+              n2y + mh / 2,
+            ) < minSpacing
+          );
+        },
+      );
       if (!tooCloseNode) {
         return { x, y };
       }
-      // keep looking
+      // try another angle
+      angle += 12;
     }
-    return findPositionNear(node, spacing + minSpacing, minSpacing);
+    // nothing found super close, look further away
+    return findPositionNear(node, {
+      spacing: spacing + minSpacing,
+      minSpacing: minSpacing,
+      additionalNodesToAvoid,
+    });
   }
 
   async function addNanoBanana(prompt: string) {
     let nodeId = crypto.randomUUID();
     let rootNode = nodes.find((n) => n.id === "root")!;
+    let position = findPositionNear(rootNode);
     let newNode = imageGenNodes.make({
       id: nodeId,
       data: { prompt, state: "generating" },
-      position: findPositionNear(rootNode),
+      position,
     });
 
+    setAiCursor(position);
+    await sleep(500);
     addNodes(newNode);
     addEdges({
       id: crypto.randomUUID(),
       source: nodeId,
       target: "root",
     });
+    await sleep(1000);
+    setAiCursor(null);
 
     // canvasRef.current?.fit();
-    canvasRef.current?.panTo(newNode);
+    // canvasRef.current?.panTo(newNode);
     let imageDataUrl = await generateImage(ai, {
       prompt: `
 The user is working on an app idea. They've asked to generate an image with the prompt below
@@ -226,31 +261,44 @@ ${prompt}
     });
   }
 
-  function addEntities(...entities: EntityNodeData[]) {
+  async function addEntities(...entities: EntityNodeData[]) {
     let newNodes: Node[] = [];
     for (let entity of entities) {
       let nodeId = crypto.randomUUID();
       let rootNode = getNode("root")!;
+      let position = findPositionNear(rootNode, {
+        additionalNodesToAvoid: newNodes,
+      });
       let newNode = entityNodes.make({
         id: nodeId,
         data: entity,
-        position: findPositionNear(rootNode),
+        position,
       });
 
+      setAiCursor(position);
+      await sleep(500);
       addNodes(newNode);
-
       addEdges({
         id: crypto.randomUUID(),
         source: nodeId,
         target: "root",
       });
+      await sleep(1000);
+      setAiCursor(null);
+
+      newNodes.push(newNode);
     }
 
     // canvasRef.current?.fit();
-    canvasRef.current?.panTo(...newNodes);
+    // canvasRef.current?.panTo(...newNodes);
   }
 
   async function autoAddMiniApp() {
+    setAiCursor({
+      x: 0,
+      y: 0,
+      ...canvasRef.current?.pointAtCenter(),
+    });
     setAiGenerating(true);
     try {
       let dataUrl = await canvasRef.current!.captureScreenshot();
@@ -301,18 +349,23 @@ ${prompt}
   ) {
     let nodeId = crypto.randomUUID();
     let rootNode = nodes.find((n) => n.id === "root")!;
+    let position = findPositionNear(rootNode);
     let newNode = miniAppNodes.make({
       id: nodeId,
       data: { prompt, state: "generating" },
-      position: findPositionNear(rootNode),
+      position,
     });
 
+    setAiCursor(position);
+    await sleep(500);
     addNodes(newNode);
     addEdges({
       id: crypto.randomUUID(),
       source: nodeId,
       target: "root",
     });
+    await sleep(1000);
+    setAiCursor(null);
 
     // canvasRef.current?.fit();
     let appCode = await generateMiniApp(ai, prompt, {
@@ -348,8 +401,8 @@ ${prompt}
       title: z.string(),
       type: z.enum(["tech-stack", "user-goal"] satisfies EntityType[]),
     }),
-    run({ title, type }) {
-      addEntities({
+    async run({ title, type }) {
+      await addEntities({
         title,
         type,
       });
@@ -364,8 +417,8 @@ ${prompt}
     parameters: z.object({
       prompt: z.string(),
     }),
-    run({ prompt }) {
-      addNanoBanana(prompt);
+    async run({ prompt }) {
+      await addNanoBanana(prompt);
       return "Added the image... it's generating. The user may need to wait a bit for it to appear";
     },
   });
@@ -377,13 +430,18 @@ ${prompt}
     parameters: z.object({
       prompt: z.string(),
     }),
-    run({ prompt }) {
-      addMiniApp(prompt);
+    async run({ prompt }) {
+      await addMiniApp(prompt);
       return "Added the prototype... it's generating. The user may need to wait a bit for it to appear";
     },
   });
 
   async function autoAddEntities(type: EntityType) {
+    setAiCursor({
+      x: 0,
+      y: 0,
+      ...canvasRef.current?.pointAtCenter(),
+    });
     setAiGenerating(true);
     try {
       let dataUrl = await canvasRef.current!.captureScreenshot();
@@ -428,7 +486,7 @@ ${prompt}
       if (!Array.isArray(strings)) {
         throw new Error("AI response was not an array");
       }
-      addEntities(...strings.map((s) => ({ title: String(s), type })));
+      await addEntities(...strings.map((s) => ({ title: String(s), type })));
       console.log(strings);
     } catch (e) {
       console.error(e);
@@ -438,6 +496,11 @@ ${prompt}
   }
 
   async function autoAddNanoBanana() {
+    setAiCursor({
+      x: 0,
+      y: 0,
+      ...canvasRef.current?.pointAtCenter(),
+    });
     setAiGenerating(true);
     try {
       let dataUrl = await canvasRef.current!.captureScreenshot();
@@ -490,7 +553,6 @@ ${prompt}
   return (
     <LiveAPI
       ref={liveApiRef}
-      model={DEFAULT_MODEL}
       voiceName="Charon"
       systemInstruction="You are a helpful assistant that responds in a concise and friendly manner. Your name is 'Gemini'"
       tools={[addNodeTool, addImageTool, addMiniAppTool]}
