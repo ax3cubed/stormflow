@@ -54,6 +54,7 @@ import { useEffect, useRef, useState } from "react";
 import z from "zod";
 import styles from "./Editor.module.scss";
 import { useGeminiApi } from "./ai";
+import { useAuthContext } from "./auth/AuthProvider";
 import { NodeInspectorPanel } from "./canvas/NodeInspectorPanel";
 import { MiniAppNodeData, miniAppNodes } from "./canvas/nodes/MiniAppNode";
 import { distanceToRect, sleep } from "./canvas/util";
@@ -83,6 +84,7 @@ export function Editor(props: Props) {
 function EditorInner({ docId }: Props) {
   const ai = useGeminiApi();
   const { prefs } = usePrefsContext();
+  const { user } = useAuthContext();
   const windowFocused = useWindowFocused();
   const liveApiRef = useRef<LiveAPIContext>(null);
   const canvasRef = useRef<CanvasRef>(null);
@@ -118,7 +120,7 @@ function EditorInner({ docId }: Props) {
 
   // automatically create document title with AI
   useEffect(() => {
-    if (docLoading) return;
+    if (docLoading || !user) return;
     if (metadata?.title && metadata.title !== UNTITLED_DOC_TITLE) return;
     let { prompt } =
       (nodes.find((n) => n.id === "root")?.data as RootNodeData | undefined) ||
@@ -145,14 +147,14 @@ function EditorInner({ docId }: Props) {
           
           Now give me a short, catchy title for this app idea.`,
       });
-      if (!abort.signal.aborted) {
-        updateMetadata({
-          title: result.text?.trim() || UNTITLED_DOC_TITLE,
-        });
-      }
+      if (abort.signal.aborted) return;
+      updateMetadata({
+        title: result.text?.trim() || UNTITLED_DOC_TITLE,
+        creatorUid: user.uid,
+      });
     })();
     return () => abort.abort();
-  }, [ai, docLoading, nodes, metadata]);
+  }, [ai, docLoading, nodes, metadata, user]);
 
   useCommand(
     { label: "Stop commenting", keyName: "Escape", disabled: !commentMode },

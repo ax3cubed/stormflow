@@ -135,11 +135,15 @@ export function Header() {
                   </DropdownMenu.Item>
                 </a>
               ))}
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item color="red" onClick={() => deleteDocument()}>
-              <TrashIcon size={16} />
-              Delete {metadata?.title || "this file"}
-            </DropdownMenu.Item>
+            {!!user && metadata?.creatorUid === user.uid && (
+              <>
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item color="red" onClick={() => deleteDocument()}>
+                  <TrashIcon size={16} />
+                  Delete {metadata?.title || "this file"}
+                </DropdownMenu.Item>
+              </>
+            )}
           </DropdownMenu.Content>
         </DropdownMenu.Root>
         <InlineTextEdit
