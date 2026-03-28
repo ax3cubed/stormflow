@@ -28,7 +28,6 @@ export function LoginScreen() {
         Sign in with Google
         <ArrowRightIcon size={16} />
       </Button>
-      <Onboarding.LabsCodeLink />
     </Onboarding.Container>
   );
 }
