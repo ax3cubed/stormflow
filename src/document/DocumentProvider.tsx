@@ -17,6 +17,7 @@ import {
 } from "firebase/database";
 import {
   createContext,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -129,7 +130,9 @@ export function DocumentProvider({
   // Observe doc metadata and content from RTDB
   useEffect(() => {
     let unsub = onValue(metadataRef, (ss) => {
-      setMetadata(ss.val() || {});
+      startTransition(() => {
+        setMetadata(ss.val() || {});
+      });
     });
     return () => unsub();
   }, [docId]);

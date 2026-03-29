@@ -1,0 +1,11 @@
+[
+  {
+    "origin": [
+      "https://product-brainstorm.vercel.app",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173"
+    ],
+    "method": ["GET", "HEAD"],
+    "maxAgeSeconds": 3600
+  }
+]

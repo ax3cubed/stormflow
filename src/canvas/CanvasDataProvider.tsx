@@ -9,6 +9,7 @@ import { child, DatabaseReference, onValue, set } from "firebase/database";
 import React, {
   createContext,
   SetStateAction,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -82,45 +83,47 @@ export function CanvasDataProvider({
         nodes: [],
         edges: [],
       };
-      setNodesRaw((existingNodes) => {
-        let newNodes: Node[] = [];
-        let newIds = new Set();
-        let existingById = Object.fromEntries(
-          existingNodes.map((n) => [n.id, n])
-        );
-        for (let [id, n] of Object.entries(nodes || {})) {
-          newIds.add(id);
-          let rawNode = {
-            ...existingById[id], // could be empty
-            id,
-            type: n.type || undefined,
-            data: n.data || undefined,
-            position: n.position,
-          };
-          newNodes.push(nodeFactories[n.type || ""]?.make(rawNode) || rawNode);
-        }
-        return newNodes;
+      startTransition(() => {
+        setNodesRaw((existingNodes) => {
+          let newNodes: Node[] = [];
+          let newIds = new Set();
+          let existingById = Object.fromEntries(
+            existingNodes.map((n) => [n.id, n])
+          );
+          for (let [id, n] of Object.entries(nodes || {})) {
+            newIds.add(id);
+            let rawNode = {
+              ...existingById[id], // could be empty
+              id,
+              type: n.type || undefined,
+              data: n.data || undefined,
+              position: n.position,
+            };
+            newNodes.push(nodeFactories[n.type || ""]?.make(rawNode) || rawNode);
+          }
+          return newNodes;
+        });
+        setEdgesRaw((existingEdges) => {
+          let newEdges: Edge[] = [];
+          let newIds = new Set();
+          let existingById = Object.fromEntries(
+            existingEdges.map((e) => [e.id, e])
+          );
+          for (let [id, e] of Object.entries(edges || {})) {
+            newIds.add(id);
+            newEdges.push({
+              ...existingById[id], // could be empty
+              id,
+              type: "floating",
+              data: e.data || undefined,
+              source: e.source,
+              target: e.target,
+            });
+          }
+          return newEdges;
+        });
+        setDataLoading(false);
       });
-      setEdgesRaw((existingEdges) => {
-        let newEdges: Edge[] = [];
-        let newIds = new Set();
-        let existingById = Object.fromEntries(
-          existingEdges.map((e) => [e.id, e])
-        );
-        for (let [id, e] of Object.entries(edges || {})) {
-          newIds.add(id);
-          newEdges.push({
-            ...existingById[id], // could be empty
-            id,
-            type: "floating",
-            data: e.data || undefined,
-            source: e.source,
-            target: e.target,
-          });
-        }
-        return newEdges;
-      });
-      setDataLoading(false);
     });
     return () => unsub();
   }, [String(dataRef)]);
@@ -177,7 +180,7 @@ export function CanvasDataProvider({
         return newEdges;
       });
     },
-    [String(dataRef), setNodesRaw]
+    [String(dataRef), setEdgesRaw]
   );
 
   let context = useMemo<CanvasDataContext>(
