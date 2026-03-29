@@ -1,6 +1,8 @@
-# Product Canvas Experiment
+# Product Brainstorm
 
-A multiplayer collaborative canvas for product brainstorming
+A multiplayer collaborative canvas for product brainstorming.
+
+**Based on** [Product Canvas Experiment](https://github.com/romannurik/ProductCanvas-Experiment) (Apache License 2.0 — see [LICENSE](./LICENSE)), originally described in [Google Labs: Product Canvas](https://labs.google/code/experiments/product-canvas). This fork is maintained independently and is not endorsed by Google LLC or the upstream authors.
 
 👉 [**Read the article**](https://labs.google/code/experiments/product-canvas)
 

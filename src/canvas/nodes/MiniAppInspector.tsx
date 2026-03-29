@@ -1,7 +1,10 @@
 /**
  * @license
  * Copyright 2026 Google LLC
+ * Copyright 2026 ax3cubed (Modifications)
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Modifications: see repository CHANGELOG.md.
  */
 
 import { MiniAppHost } from "@/miniapp/MiniAppHost";
