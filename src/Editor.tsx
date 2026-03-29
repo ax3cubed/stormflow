@@ -106,7 +106,7 @@ function EditorInner({ docId }: Props) {
   } = useCanvasDataContext();
 
   useEffect(() => {
-    document.title = `${metadata?.title || UNTITLED_DOC_TITLE} – Product Canvas`;
+    document.title = `${metadata?.title || UNTITLED_DOC_TITLE} – Stormflow`;
   }, [metadata?.title]);
 
   // initialize document with starting elements if empty

@@ -1,7 +1,13 @@
 {
-  "name": "product-brainstorm",
+  "name": "stormflow",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0-accelory",
+  "description": "A collaborative brainstorming canvas for Accelory.net",
+  "author": "Accelory <team@accelory.net>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ax3cubed/stormflow.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

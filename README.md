@@ -1,10 +1,10 @@
-# Product Brainstorm
+# Stormflow
 
-A multiplayer collaborative canvas for product brainstorming.
+A collaborative brainstorming canvas for [Accelory.net](https://accelory.net), with realtime multiplayer and AI-assisted workflows.
 
-**Based on** [Product Canvas Experiment](https://github.com/romannurik/ProductCanvas-Experiment) (Apache License 2.0 — see [LICENSE](./LICENSE)), originally described in [Google Labs: Product Canvas](https://labs.google/code/experiments/product-canvas). This fork is maintained independently and is not endorsed by Google LLC or the upstream authors.
+**Upstream:** This project is based on [ProductCanvas-Experiment](https://github.com/romannurik/ProductCanvas-Experiment) (Apache License 2.0 — see [LICENSE](./LICENSE)), originally described in [Google Labs: Product Canvas](https://labs.google/code/experiments/product-canvas). It is maintained by Accelory and is not endorsed by Google LLC or the upstream authors.
 
-👉 [**Read the article**](https://labs.google/code/experiments/product-canvas)
+👉 [**Read the article**](https://labs.google/code/experiments/product-canvas) (original experiment)
 
 ## Building locally
 
@@ -22,7 +22,7 @@ A multiplayer collaborative canvas for product brainstorming.
     ```bash
     gsutil cors set storage.cors.json gs://YOUR_PROJECT_ID.appspot.com
     ```
-    Replace `YOUR_PROJECT_ID` with your Firebase project ID (e.g. `product-canvas-experimen-3eb7b`). Add production origins to `storage.cors.json` if you need uploads from your deployed URL.
+    Replace `YOUR_PROJECT_ID` with your Firebase project ID. Add production origins (e.g. your Vercel or Accelory.net URL) to [`storage.cors.json`](./storage.cors.json) before applying.
 
 ## Technical components
 
@@ -35,3 +35,9 @@ A multiplayer collaborative canvas for product brainstorming.
 - **On-the-fly prototype generation** - simplified coding agent powered by Gemini, along with an in-browser runtime powered by [`esbuild-wasm`](https://www.npmjs.com/package/esbuild-wasm) and inspired by [JSNotebook](https://github.com/tschoffelen/jsnotebook).
 - **Wiki-style project knowledge editor** - powered by [Tiptap](https://tiptap.dev/)
 - **Video calls** unobtrusive, flingable participant video bubbles
+
+## License and credits
+
+Stormflow is licensed under the [Apache License 2.0](./LICENSE).
+
+This software is a modified version of **ProductCanvas-Experiment** ([Roman Nurik](https://github.com/romannurik) / [Google Labs Product Canvas](https://labs.google/code/experiments/product-canvas)). Original copyrights in the source headers belong to Google LLC where indicated; see [NOTICE](./NOTICE) for derivative-work attribution.

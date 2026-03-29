@@ -17,15 +17,16 @@ export function LoginScreen() {
   return (
     <Onboarding.Container>
       <Onboarding.Logo />
-      <Onboarding.Title>Product Canvas</Onboarding.Title>
+      <Onboarding.Title>Stormflow</Onboarding.Title>
       <Onboarding.Description>
-        An experiment in collaboratively brainstorming apps with AI.{" "}
+        A collaborative brainstorming canvas for Accelory.net. Based on the Google Labs{" "}
         <Link
           target="_blank"
           href="https://labs.google/code/experiments/product-canvas"
         >
-          Learn more
-        </Link>
+          Product Canvas
+        </Link>{" "}
+        experiment.
       </Onboarding.Description>
       <Button onClick={() => signIn()}>
         Sign in with Google
