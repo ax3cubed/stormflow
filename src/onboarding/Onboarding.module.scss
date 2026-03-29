@@ -42,6 +42,16 @@
   text-align: center;
 }
 
+.cardStormflow {
+  --rough-card-height: 400px;
+  background: color-mix(in srgb, #ffffff 82%, #fff3eb) !important;
+  border: 1px solid color-mix(in srgb, #ffb48c 38%, transparent) !important;
+  box-shadow:
+    0 1.25rem 3rem color-mix(in srgb, #e88b6a 14%, transparent),
+    0 0 0 1px color-mix(in srgb, #ffffff 90%, transparent) inset !important;
+  backdrop-filter: blur(0.875rem);
+}
+
 .logo,
 .image {
   border-radius: var(--radius-3);

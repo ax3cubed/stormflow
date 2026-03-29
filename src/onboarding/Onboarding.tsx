@@ -11,6 +11,7 @@ import { AuthAvatar } from "@/auth/AuthAvatar";
 import { useAuthContext } from "@/auth/AuthProvider";
 import { Logo } from "@/components/Logo";
 import { usePrefsContext } from "@/util/PrefsProvider";
+import cn from "classnames";
 import {
   Card,
   Heading,
@@ -50,29 +51,46 @@ export function OnboardGate({ children }: React.PropsWithChildren) {
   return <>{children}</>;
 }
 
-function OnboardingContainer({ children }: React.PropsWithChildren) {
+type OnboardingVariant = "default" | "stormflow";
+
+function OnboardingContainer({
+  children,
+  variant = "default",
+}: React.PropsWithChildren<{ variant?: OnboardingVariant }>) {
   const { user } = useAuthContext();
+  const isStormflow = variant === "stormflow";
   return (
     <>
       {user && <AuthAvatar className={styles.avatar} />}
       <div className={styles.container}>
         <MeshGradient
           className={styles.backdrop}
-          colors={["#2E2259", "#341947", "#2B2137"]}
-          distortion={0.4}
-          speed={1}
-          grainMixer={1}
+          colors={
+            isStormflow
+              ? ["#fffbf7", "#fff0e6", "#ffd8c4", "#ffc9ae"]
+              : ["#2E2259", "#341947", "#2B2137"]
+          }
+          distortion={isStormflow ? 0.32 : 0.4}
+          speed={isStormflow ? 0.55 : 1}
+          grainMixer={isStormflow ? 0.35 : 1}
         />
         <GodRays
           className={styles.godrays}
-          colors={["#2E2259", "#341947", "#2B2137"]}
-          colorBloom="#2B2137"
+          colors={
+            isStormflow
+              ? ["#ffb48c66", "#ffd4c44d", "#ffffff33"]
+              : ["#2E2259", "#341947", "#2B2137"]
+          }
+          colorBloom={isStormflow ? "#ffb48c55" : "#2B2137"}
           colorBack="#00000000"
-          speed={2}
+          speed={isStormflow ? 1.1 : 2}
           offsetX={0}
           offsetY={0}
         />
-        <Card size="4" className={styles.card}>
+        <Card
+          size="4"
+          className={cn(styles.card, isStormflow && styles.cardStormflow)}
+        >
           {children}
         </Card>
       </div>
@@ -81,7 +99,9 @@ function OnboardingContainer({ children }: React.PropsWithChildren) {
 }
 
 export const Onboarding = {
-  Container: OnboardingContainer,
+  Container: (props: React.PropsWithChildren<{ variant?: OnboardingVariant }>) => (
+    <OnboardingContainer {...props} />
+  ),
   Logo: () => <Logo className={styles.logo} size={24} />,
   Image: ({ children }: React.PropsWithChildren) => (
     <div className={styles.image}>{children}</div>
