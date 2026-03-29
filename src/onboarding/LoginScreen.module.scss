@@ -7,125 +7,354 @@
  * Modifications: see repository CHANGELOG.md.
  */
 
-$peach: #ffb48c;
-$peach-deep: #e88b6a;
-$cream: #fffbf7;
-$ink: #2a2220;
-$ink-muted: #6b5348;
+$peach:       #ffb48c;
+$peach-deep:  #e88b6a;
+$peach-muted: #e8a882;
+$cream:       #fffbf7;
+$ink:         #2a2220;
+$ink-mid:     #4a3830;
+$ink-muted:   #7a6258;
+$border:      rgba(200, 130, 90, 0.2);
 
-.stage {
+/* ─── Full-page layout ──────────────────────────────────────────────── */
+
+.page {
+  display: flex;
+  min-height: 100svh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ─── Left panel ────────────────────────────────────────────────────── */
+
+.leftPanel {
   position: relative;
+  flex: 0 0 55%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    flex: 0 0 100%;
+    min-height: 280px;
+    flex: none;
+    width: 100%;
+  }
+}
+
+.leftBg,
+.leftRays {
+  position: absolute;
+  inset: 0;
+}
+
+.leftRays {
+  mask-image: radial-gradient(
+    ellipse 90% 80% at 50% 50%,
+    transparent 40%,
+    black 100%
+  );
+}
+
+.leftContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2.5rem 3rem;
+  gap: 0;
+
+  @media (max-width: 900px) {
+    padding: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+.leftBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: auto;
+}
+
+.leftBrandName {
+  font-family: 'IBM Plex Serif', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: $ink;
+}
+
+.leftHero {
+  padding: 3rem 0 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 0 1.25rem;
+  }
+}
+
+.leftHeadline {
+  font-family: 'IBM Plex Serif', Georgia, serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: $ink;
+  margin: 0 0 0.85rem;
+}
+
+.leftAccent {
+  background: linear-gradient(135deg, $peach-deep 0%, darken($peach, 10%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.leftSubtitle {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: $ink-muted;
+  max-width: 38ch;
+  margin: 0;
+}
+
+/* ─── Feature pills ─────────────────────────────────────────────────── */
+
+.featurePills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.featurePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: $ink-mid;
+  background: rgba(255, 180, 140, 0.15);
+  border: 1px solid rgba(200, 110, 60, 0.2);
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
+
+  svg {
+    color: $peach-deep;
+    flex-shrink: 0;
+  }
+}
+
+.leftFooterNote {
+  font-size: 0.72rem;
+  color: $ink-muted;
+  margin: 0;
+  opacity: 0.7;
+}
+
+/* ─── Right panel ────────────────────────────────────────────────────── */
+
+.rightPanel {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #faf6f2;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex: none;
+  }
+}
+
+.backButton {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $ink-muted;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: $ink;
+    background: rgba(200, 130, 90, 0.08);
+  }
+}
+
+/* ─── Auth card ─────────────────────────────────────────────────────── */
+
+.authCard {
+  width: 100%;
+  max-width: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 2rem 1.25rem 1.5rem;
-  overflow: hidden;
 }
 
-.flowRing {
-  position: absolute;
-  width: 11rem;
-  height: 11rem;
-  top: 0.5rem;
-  left: 50%;
-  translate: -50% 0;
-  border: 1px solid color-mix(in srgb, #{$peach} 45%, transparent);
-  border-radius: 50%;
-  pointer-events: none;
-  animation: flowPulse 10s ease-in-out infinite;
+.authLogo {
+  margin-bottom: 1.25rem !important;
 }
 
-.flowRingOuter {
-  width: 14.5rem;
-  height: 14.5rem;
-  top: -0.25rem;
-  border-color: color-mix(in srgb, #{$peach} 22%, transparent);
-  animation-delay: -5s;
-  animation-duration: 12s;
-}
-
-@keyframes flowPulse {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.04);
-  }
-}
-
-.heroLogo {
-  position: relative;
-  z-index: 1;
-  width: 5rem !important;
-  height: 5rem !important;
-  margin: 0 auto 1.25rem;
-  filter: drop-shadow(0 0.5rem 1.25rem color-mix(in srgb, #{$peach} 35%, transparent));
-}
-
-.title {
-  position: relative;
-  z-index: 1;
-  font-family: "IBM Plex Serif", serif;
+.authTitle {
+  font-family: 'IBM Plex Serif', Georgia, serif;
+  font-size: 1.6rem;
   font-weight: 500;
   letter-spacing: -0.03em;
-  color: $ink !important;
-  margin-bottom: 0.5rem !important;
+  color: $ink;
+  margin: 0 0 0.45rem;
 }
 
-.copy {
-  position: relative;
-  z-index: 1;
-  max-width: 18rem;
-  margin: 0 auto 1.75rem;
-  text-wrap: balance;
-  line-height: 1.55;
-  color: $ink-muted !important;
+.authSubtitle {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: $ink-muted;
+  margin: 0 0 2rem;
+  max-width: 26ch;
+}
 
-  :global(a) {
-    color: #c45c3a;
-    font-weight: 500;
+/* ─── Google button ─────────────────────────────────────────────────── */
+
+.googleButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $ink;
+  background: #ffffff;
+  border: 1.5px solid rgba(200, 130, 90, 0.25);
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(200, 100, 50, 0.08);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  position: relative;
+
+  &:hover {
+    border-color: rgba(200, 130, 90, 0.45);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.08),
+      0 6px 18px rgba(200, 100, 50, 0.14);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.06),
+      0 3px 8px rgba(200, 100, 50, 0.1);
+  }
+}
+
+.googleIcon {
+  flex-shrink: 0;
+}
+
+.googleButton span {
+  flex: 1;
+  text-align: center;
+}
+
+.googleArrow {
+  flex-shrink: 0;
+  color: $ink-muted;
+  transition: transform 0.15s;
+
+  .googleButton:hover & {
+    transform: translateX(2px);
+  }
+}
+
+/* ─── Legal note ────────────────────────────────────────────────────── */
+
+.legalNote {
+  margin: 1.25rem 0 0;
+  font-size: 0.73rem;
+  line-height: 1.55;
+  color: $ink-muted;
+  max-width: 28ch;
+  text-align: center;
+  opacity: 0.75;
+
+  a {
+    color: #c96a49;
     text-decoration-thickness: 1px;
-    text-underline-offset: 0.15em;
+    text-underline-offset: 0.12em;
 
     &:hover {
-      color: #a34a2e;
+      color: $ink;
     }
   }
 }
 
-.signIn {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 17rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border: none !important;
-  background: linear-gradient(
-    155deg,
-    color-mix(in srgb, #{$peach} 95%, white) 0%,
-    #{$peach-deep} 100%
-  ) !important;
-  color: #fffdf9 !important;
-  box-shadow:
-    0 0.25rem 0 color-mix(in srgb, #{$peach-deep} 55%, #5c2e20),
-    0 0.65rem 1.5rem color-mix(in srgb, #{$peach} 45%, transparent);
+/* ─── Mobile: vertical stack ─────────────────────────────────────────── */
 
-  &:hover {
-    filter: brightness(1.05);
-    box-shadow:
-      0 0.25rem 0 color-mix(in srgb, #{$peach-deep} 55%, #5c2e20),
-      0 0.75rem 1.75rem color-mix(in srgb, #{$peach} 55%, transparent);
+@media (max-width: 768px) {
+  .page {
+    flex-direction: column;
   }
 
-  &:active {
-    transform: translateY(1px);
-    box-shadow:
-      0 0.125rem 0 color-mix(in srgb, #{$peach-deep} 55%, #5c2e20),
-      0 0.35rem 1rem color-mix(in srgb, #{$peach} 35%, transparent);
+  .leftPanel {
+    min-height: 260px;
+  }
+
+  .leftContent {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .leftBrand {
+    margin-bottom: 0;
+  }
+
+  .leftHero {
+    padding: 1rem 0 0.75rem;
+  }
+
+  .leftHeadline {
+    font-size: 1.5rem;
+  }
+
+  .leftSubtitle {
+    display: none;
+  }
+
+  .featurePills {
+    margin-bottom: 0.75rem;
+  }
+
+  .leftFooterNote {
+    display: none;
+  }
+
+  .rightPanel {
+    padding: 2rem 1.5rem;
+    justify-content: flex-start;
+  }
+
+  .backButton {
+    top: 1rem;
+    left: 1rem;
   }
 }

@@ -14,8 +14,13 @@ import { Editor } from "./Editor";
 import { CommandProvider } from "./commands/CommandProvider";
 import { generateId } from "./document/util";
 import { OnboardGate } from "./onboarding/Onboarding";
+import { syncDocumentSeo } from "./seo/syncDocumentSeo";
 
 export function App() {
+  useEffect(() => {
+    syncDocumentSeo(window.location.pathname || "/");
+  }, []);
+
   return (
     <AuthProvider>
       <PrefsProvider>
@@ -36,6 +41,10 @@ export function App() {
 export function RouterGate() {
   const { user } = useAuthContext();
   const docId = window.location.pathname.replace(/^\//, "");
+
+  useEffect(() => {
+    syncDocumentSeo(window.location.pathname || "/");
+  }, [docId]);
 
   useEffect(() => {
     if (user && !docId) {

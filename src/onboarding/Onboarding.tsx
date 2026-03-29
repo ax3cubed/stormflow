@@ -22,16 +22,20 @@ import {
 import { useMemo, useState } from "react";
 import { Loading } from "../components/Loading";
 import { InitialPrefsScreen } from "./InitialPrefsScreen";
+import { LandingPage } from "@/landing/LandingPage";
 import { LoginScreen } from "./LoginScreen";
 import styles from "./Onboarding.module.scss";
 import { areRequiredPrefsSet } from "./RequiredPrefs";
 import { areTermsAccepted, TermsScreen } from "./TermsScreen";
 import { GodRays, MeshGradient } from "@paper-design/shaders-react";
 
+type AuthStep = "landing" | "signin";
+
 export function OnboardGate({ children }: React.PropsWithChildren) {
   const { user, authLoaded } = useAuthContext();
   const { prefs } = usePrefsContext();
   const [continueKey, setContinueKey] = useState(0);
+  const [authStep, setAuthStep] = useState<AuthStep>("landing");
   const termsAccepted = useMemo(() => areTermsAccepted(prefs), [continueKey]);
   // only check on first mount to avoid kicking users out if they delete prefs
   const initialConfigDone = useMemo(
@@ -40,7 +44,14 @@ export function OnboardGate({ children }: React.PropsWithChildren) {
   );
 
   if (!authLoaded) return <Loading />;
-  if (!user) return <LoginScreen />;
+
+  if (!user) {
+    if (authStep === "landing") {
+      return <LandingPage onGetStarted={() => setAuthStep("signin")} />;
+    }
+    return <LoginScreen onBack={() => setAuthStep("landing")} />;
+  }
+
   if (!termsAccepted) return <TermsScreen onContinue={() => setContinueKey((k) => k + 1)} />;
   if (!initialConfigDone)
     return (
