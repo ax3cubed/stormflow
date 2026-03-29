@@ -7,69 +7,102 @@
  * Modifications: see repository CHANGELOG.md.
  */
 
+/* ─── Tokens — mirrors landing/login dark theme ───────────────────────── */
+
+$bg:      #060606;
+$border:  rgba(255, 255, 255, 0.08);
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Full-page container ─────────────────────────────────────────────── */
+
 .container {
+  position: relative;
   display: flex;
   flex-direction: column;
-  margin: 0 auto;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: 440px;
-  height: 100svh;
-  padding: 24px;
+  min-height: 100svh;
+  background: $bg;
+  overflow: hidden;
+  padding: 2rem 1.5rem;
   box-sizing: border-box;
 }
 
-.backdrop,
-.godrays {
-  position: fixed;
-  inset: 0;
+/* Atmospheric green glow — same as login/landing */
+.atmo {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 65%;
+  height: 90%;
+  background: radial-gradient(
+    ellipse 65% 60% at 55% 35%,
+    rgba(110, 195, 100, 0.18) 0%,
+    rgba(90, 170, 85, 0.07) 50%,
+    transparent 100%
+  );
+  filter: blur(60px);
+  pointer-events: none;
 }
 
-.godrays {
-  mask-image: radial-gradient(
-    circle closest-side at 50% 50%,
-    transparent 50%,
-    black 100%
-  );
-}
+/* ─── Card ─────────────────────────────────────────────────────────────── */
 
 .card {
-  // not perfectly centered to avoid vertical layout shift when switching screens
-  --rough-card-height: 340px;
-  margin-top: calc((100svh - var(--rough-card-height)) / 2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.cardStormflow {
-  --rough-card-height: 400px;
-  background: color-mix(in srgb, #ffffff 82%, #fff3eb) !important;
-  border: 1px solid color-mix(in srgb, #ffb48c 38%, transparent) !important;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px !important;
+  background: rgba(255, 255, 255, 0.032) !important;
+  border: 1px solid $border !important;
+  border-radius: 20px !important;
   box-shadow:
-    0 1.25rem 3rem color-mix(in srgb, #e88b6a 14%, transparent),
-    0 0 0 1px color-mix(in srgb, #ffffff 90%, transparent) inset !important;
-  backdrop-filter: blur(0.875rem);
+    0 0 0 1px rgba(255, 255, 255, 0.025) inset,
+    0 2rem 5rem rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(28px) saturate(1.1) !important;
+  animation: fadeUp 0.55s ease both;
 }
 
-.logo,
+/* Icon container (used by Terms + InitialPrefs) */
 .image {
-  border-radius: var(--radius-3);
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0px auto 20px auto;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid $border;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 auto 1.1rem;
 }
 
-.image {
-  background-color: var(--gray-a3);
+/* Small logo in non-stormflow screens */
+.logo {
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 auto 1.1rem;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid $border;
 }
 
+/* CTA button override for Radix Button inside onboarding */
+.cta {
+  width: 100%;
+}
+
+/* User avatar (top-right when signed in) */
 .avatar {
   position: fixed;
-  right: 24px;
-  top: 24px;
-  z-index: 1;
+  right: 1.5rem;
+  top: 1.5rem;
+  z-index: 10;
 }

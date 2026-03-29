@@ -11,7 +11,6 @@ import { AuthAvatar } from "@/auth/AuthAvatar";
 import { useAuthContext } from "@/auth/AuthProvider";
 import { Logo } from "@/components/Logo";
 import { usePrefsContext } from "@/util/PrefsProvider";
-import cn from "classnames";
 import {
   Card,
   Heading,
@@ -27,7 +26,6 @@ import { LoginScreen } from "./LoginScreen";
 import styles from "./Onboarding.module.scss";
 import { areRequiredPrefsSet } from "./RequiredPrefs";
 import { areTermsAccepted, TermsScreen } from "./TermsScreen";
-import { GodRays, MeshGradient } from "@paper-design/shaders-react";
 
 type AuthStep = "landing" | "signin";
 
@@ -62,46 +60,14 @@ export function OnboardGate({ children }: React.PropsWithChildren) {
   return <>{children}</>;
 }
 
-type OnboardingVariant = "default" | "stormflow";
-
-function OnboardingContainer({
-  children,
-  variant = "default",
-}: React.PropsWithChildren<{ variant?: OnboardingVariant }>) {
+function OnboardingContainer({ children }: React.PropsWithChildren) {
   const { user } = useAuthContext();
-  const isStormflow = variant === "stormflow";
   return (
     <>
       {user && <AuthAvatar className={styles.avatar} />}
       <div className={styles.container}>
-        <MeshGradient
-          className={styles.backdrop}
-          colors={
-            isStormflow
-              ? ["#fffbf7", "#fff0e6", "#ffd8c4", "#ffc9ae"]
-              : ["#2E2259", "#341947", "#2B2137"]
-          }
-          distortion={isStormflow ? 0.32 : 0.4}
-          speed={isStormflow ? 0.55 : 1}
-          grainMixer={isStormflow ? 0.35 : 1}
-        />
-        <GodRays
-          className={styles.godrays}
-          colors={
-            isStormflow
-              ? ["#ffb48c66", "#ffd4c44d", "#ffffff33"]
-              : ["#2E2259", "#341947", "#2B2137"]
-          }
-          colorBloom={isStormflow ? "#ffb48c55" : "#2B2137"}
-          colorBack="#00000000"
-          speed={isStormflow ? 1.1 : 2}
-          offsetX={0}
-          offsetY={0}
-        />
-        <Card
-          size="4"
-          className={cn(styles.card, isStormflow && styles.cardStormflow)}
-        >
+        <div className={styles.atmo} aria-hidden />
+        <Card size="4" className={styles.card}>
           {children}
         </Card>
       </div>
@@ -110,7 +76,7 @@ function OnboardingContainer({
 }
 
 export const Onboarding = {
-  Container: (props: React.PropsWithChildren<{ variant?: OnboardingVariant }>) => (
+  Container: (props: React.PropsWithChildren) => (
     <OnboardingContainer {...props} />
   ),
   Logo: () => <Logo className={styles.logo} size={24} />,

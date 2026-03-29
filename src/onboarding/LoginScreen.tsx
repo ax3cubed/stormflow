@@ -9,117 +9,69 @@
 
 import { useAuthContext } from "@/auth/AuthProvider";
 import { Logo } from "@/components/Logo";
-import { ArrowLeftIcon, ArrowRightIcon, ImageIcon, MicIcon, SparklesIcon, UsersIcon, ZapIcon } from "lucide-react";
-import { GodRays, MeshGradient } from "@paper-design/shaders-react";
-import loginStyles from "./LoginScreen.module.scss";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import s from "./LoginScreen.module.scss";
 
 interface LoginScreenProps {
   onBack?: () => void;
 }
 
-const FEATURE_PILLS = [
-  { icon: <SparklesIcon size={12} />, label: "AI-powered canvas" },
-  { icon: <UsersIcon size={12} />, label: "Real-time collab" },
-  { icon: <ZapIcon size={12} />, label: "Instant prototypes" },
-  { icon: <ImageIcon size={12} />, label: "Concept sketching" },
-  { icon: <MicIcon size={12} />, label: "Voice collaboration" },
-];
-
 export function LoginScreen({ onBack }: LoginScreenProps) {
   const { signIn } = useAuthContext();
 
   return (
-    <div className={loginStyles.page}>
-      {/* Left branding panel */}
-      <div className={loginStyles.leftPanel}>
-        <MeshGradient
-          className={loginStyles.leftBg}
-          colors={["#fffbf7", "#fff0e6", "#ffd8c4", "#ffc9ae"]}
-          distortion={0.32}
-          speed={0.55}
-          grainMixer={0.35}
-        />
-        <GodRays
-          className={loginStyles.leftRays}
-          colors={["#ffb48c66", "#ffd4c44d", "#ffffff33"]}
-          colorBloom="#ffb48c55"
-          colorBack="#00000000"
-          speed={1.1}
-          offsetX={0}
-          offsetY={0}
-        />
+    <div className={s.page}>
+      {/* Atmospheric glow — same green as landing page */}
+      <div className={s.atmo} aria-hidden />
+      <div className={s.atmoSecondary} aria-hidden />
 
-        {/* Content over gradient */}
-        <div className={loginStyles.leftContent}>
-          <div className={loginStyles.leftBrand}>
-            <Logo size={36} alt="Stormflow" />
-            <span className={loginStyles.leftBrandName}>Stormflow</span>
-          </div>
+      {/* Back button */}
+      {onBack && (
+        <button className={s.back} onClick={onBack}>
+          <ArrowLeftIcon size={14} />
+          Back
+        </button>
+      )}
 
-          <div className={loginStyles.leftHero}>
-            <h2 className={loginStyles.leftHeadline}>
-              Your ideas,<br />
-              <span className={loginStyles.leftAccent}>amplified by AI</span>
-            </h2>
-            <p className={loginStyles.leftSubtitle}>
-              An infinite canvas where product teams brainstorm, sketch concepts,
-              and prototype—together, in real time.
-            </p>
-          </div>
+      {/* Centered glassmorphism card */}
+      <div className={s.card}>
+        <Logo size={38} alt="Stormflow" className={s.logo} />
 
-          <div className={loginStyles.featurePills}>
-            {FEATURE_PILLS.map((f) => (
-              <div key={f.label} className={loginStyles.featurePill}>
-                {f.icon}
-                <span>{f.label}</span>
-              </div>
-            ))}
-          </div>
+        <h1 className={s.title}>Welcome back</h1>
+        <p className={s.subtitle}>
+          Sign in to open your Stormflow canvas
+        </p>
 
-          <p className={loginStyles.leftFooterNote}>
-            Powered by Gemini AI &middot; Built on Google Labs ProductCanvas
-          </p>
+        <button className={s.googleBtn} onClick={() => signIn()}>
+          <GoogleIcon />
+          <span>Continue with Google</span>
+          <ArrowRightIcon size={14} className={s.googleArrow} />
+        </button>
+
+        <div className={s.divider}>
+          <span className={s.dividerLine} />
+          <span className={s.dividerText}>What you get</span>
+          <span className={s.dividerLine} />
         </div>
-      </div>
 
-      {/* Right auth panel */}
-      <div className={loginStyles.rightPanel}>
-        {onBack && (
-          <button className={loginStyles.backButton} onClick={onBack}>
-            <ArrowLeftIcon size={14} />
-            Back to home
-          </button>
-        )}
+        <ul className={s.features}>
+          <li><span className={s.dot} />Infinite collaborative canvas</li>
+          <li><span className={s.dot} />AI-generated concept sketches</li>
+          <li><span className={s.dot} />Live prototype generation</li>
+          <li><span className={s.dot} />Real-time multiplayer</li>
+        </ul>
 
-        <div className={loginStyles.authCard}>
-          <Logo size={36} className={loginStyles.authLogo} alt="Stormflow" />
-
-          <h1 className={loginStyles.authTitle}>Welcome back</h1>
-          <p className={loginStyles.authSubtitle}>
-            Sign in to access your Stormflow canvas
-          </p>
-
-          <button
-            className={loginStyles.googleButton}
-            onClick={() => signIn()}
+        <p className={s.legal}>
+          By continuing you agree to our{" "}
+          <a
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <GoogleIcon />
-            <span>Continue with Google</span>
-            <ArrowRightIcon size={15} className={loginStyles.googleArrow} />
-          </button>
-
-          <p className={loginStyles.legalNote}>
-            By continuing, you agree to our{" "}
-            <a
-              href="https://policies.google.com/privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Privacy Policy
-            </a>
-            . Your canvas data is stored securely via Firebase.
-          </p>
-        </div>
+            Privacy Policy
+          </a>
+          . Canvas data is stored securely via Firebase.
+        </p>
       </div>
     </div>
   );
@@ -128,12 +80,12 @@ export function LoginScreen({ onBack }: LoginScreenProps) {
 function GoogleIcon() {
   return (
     <svg
-      className={loginStyles.googleIcon}
-      width="18"
-      height="18"
+      width="17"
+      height="17"
       viewBox="0 0 18 18"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className={s.googleIcon}
     >
       <path
         d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"

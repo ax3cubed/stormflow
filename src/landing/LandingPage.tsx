@@ -11,10 +11,10 @@ import {
   ArrowRightIcon,
   BookOpenIcon,
   BrainIcon,
+  GitForkIcon,
   ImageIcon,
   MicIcon,
   PlayIcon,
-  SparklesIcon,
   UsersIcon,
   ZapIcon,
 } from "lucide-react";
@@ -29,10 +29,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     <div className={styles.page}>
       <Nav onGetStarted={onGetStarted} />
       <HeroSection onGetStarted={onGetStarted} />
+      <PoweredByStrip />
       <FeaturesSection />
       <HowItWorksSection />
-      <CollabSection />
-      <AISection />
       <CTASection onGetStarted={onGetStarted} />
       <Footer />
     </div>
@@ -45,12 +44,20 @@ function Nav({ onGetStarted }: { onGetStarted: () => void }) {
   return (
     <nav className={styles.nav}>
       <div className={styles.navBrand}>
-        <Logo size={28} alt="Stormflow" />
-        <span className={styles.navLogo}>Stormflow</span>
+        <Logo size={26} alt="Stormflow" />
+        <span className={styles.navName}>Stormflow</span>
       </div>
+
+      <div className={styles.navPill}>
+        <a className={styles.navItem} href="#features">Features</a>
+        <a className={styles.navItem} href="#how-it-works">How it works</a>
+        <a className={styles.navItem} href="#collab">Collaborate</a>
+        <a className={styles.navItem} href="#ai">AI</a>
+      </div>
+
       <button className={styles.navCta} onClick={onGetStarted}>
-        Sign in
-        <ArrowRightIcon size={14} />
+        <span>Sign in</span>
+        <ArrowRightIcon size={13} />
       </button>
     </nav>
   );
@@ -61,244 +68,358 @@ function Nav({ onGetStarted }: { onGetStarted: () => void }) {
 function HeroSection({ onGetStarted }: { onGetStarted: () => void }) {
   return (
     <section className={styles.hero}>
-      <div className={styles.heroGlow} aria-hidden />
-      <div className={styles.heroGlowSecondary} aria-hidden />
-      <div className={styles.heroContent}>
+      {/* Atmospheric sage green glow */}
+      <div className={styles.heroAtmo} aria-hidden />
+      <div className={styles.heroAtmoSecondary} aria-hidden />
+
+      {/* SVG network lines */}
+      <svg
+        className={styles.heroLines}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <line x1="13" y1="25" x2="42" y2="47" />
+        <line x1="87" y1="22" x2="58" y2="46" />
+        <line x1="10" y1="66" x2="38" y2="54" />
+        <line x1="90" y1="63" x2="62" y2="53" />
+        <line x1="13" y1="25" x2="87" y2="22" />
+        <line x1="10" y1="66" x2="90" y2="63" />
+      </svg>
+
+      {/* Floating canvas nodes */}
+      <FloatingNode
+        className={styles.nodeUL}
+        icon="◆"
+        type="Persona"
+        value="The Solo Founder"
+        delay={0}
+      />
+      <FloatingNode
+        className={styles.nodeUR}
+        icon="◆"
+        type="User Goal"
+        value="Ship in 30 days"
+        delay={-2.8}
+      />
+      <FloatingNode
+        className={styles.nodeML}
+        icon="◆"
+        type="AI Sketch"
+        value="Concept ready"
+        delay={-1.4}
+        accent
+      />
+      <FloatingNode
+        className={styles.nodeMR}
+        icon="◆"
+        type="Prototype"
+        value="Live · running"
+        delay={-3.8}
+        accent
+      />
+
+      {/* Center content */}
+      <div className={styles.heroCenter}>
         <div className={styles.heroBadge}>
-          <SparklesIcon size={12} />
-          <span>Powered by Gemini AI &middot; Built for teams</span>
+          <span className={styles.heroBadgeDot} />
+          <span>AI-powered · Real-time · Open source</span>
         </div>
-        <h1 className={styles.heroHeadline}>
+
+        <h1 className={styles.heroH1}>
           Your team&rsquo;s AI canvas<br />
           for building{" "}
-          <span className={styles.heroGradient}>products</span>
+          <span className={styles.heroH1Dim}>products</span>
         </h1>
-        <p className={styles.heroSubtitle}>
-          Stormflow is an infinite collaborative canvas with AI assistance.
-          Build personas, generate concept sketches, and ship live prototypes—
-          all in one place, in real time.
+
+        <p className={styles.heroSub}>
+          Stormflow is an infinite collaborative canvas with Gemini AI.
+          Build personas, generate concept sketches, and ship live
+          prototypes—all in real time with your team.
         </p>
+
         <div className={styles.heroCtas}>
-          <button className={styles.ctaPrimary} onClick={onGetStarted}>
+          <button className={styles.btnDark} onClick={onGetStarted}>
             Start brainstorming
-            <ArrowRightIcon size={16} />
+            <ArrowRightIcon size={14} />
           </button>
-          <a className={styles.ctaSecondary} href="#how-it-works">
-            How it works
+          <a className={styles.btnOutline} href="#features">
+            Explore features
           </a>
         </div>
       </div>
-      <div className={styles.heroVisual} aria-hidden>
-        <CanvasMockup />
+
+      {/* Scroll hint */}
+      <div className={styles.scrollHint} aria-hidden>
+        <span className={styles.scrollIndex}>01/04</span>
+        <span className={styles.scrollDot} />
+        <span>Scroll down</span>
       </div>
     </section>
   );
 }
 
-/* ─── Canvas Mockup ───────────────────────────────────────────── */
+interface FloatingNodeProps {
+  className: string;
+  icon: string;
+  type: string;
+  value: string;
+  delay: number;
+  accent?: boolean;
+}
 
-function CanvasMockup() {
+function FloatingNode({
+  className,
+  icon,
+  type,
+  value,
+  delay,
+  accent,
+}: FloatingNodeProps) {
   return (
-    <div className={styles.canvasOuter}>
-      <div className={styles.canvasGrid} />
-      <div className={styles.canvasNodes}>
-        {/* Root node */}
-        <div className={`${styles.node} ${styles.nodeRoot}`}>
-          <div className={styles.nodeRootPrompt}>What are we building?</div>
-          <div className={styles.nodeRootAnswer}>
-            A subscription platform for indie makers
-          </div>
-        </div>
-
-        {/* Persona */}
-        <div className={`${styles.node} ${styles.nodeEntity} ${styles.nodeFloat1}`}>
-          <div className={styles.nodeEntityType}>
-            <UsersIcon size={11} />
-            <span>Persona</span>
-          </div>
-          <div className={styles.nodeEntityName}>The Solo Founder</div>
-          <div className={styles.nodeEntityDesc}>
-            Needs simple tooling, fast iterations
-          </div>
-        </div>
-
-        {/* Goal */}
-        <div className={`${styles.node} ${styles.nodeEntity} ${styles.nodeFloat2}`}>
-          <div className={styles.nodeEntityType}>
-            <ZapIcon size={11} />
-            <span>User Goal</span>
-          </div>
-          <div className={styles.nodeEntityName}>Launch MVP fast</div>
-          <div className={styles.nodeEntityDesc}>
-            Ship a working product in 30 days
-          </div>
-        </div>
-
-        {/* Tech stack */}
-        <div className={`${styles.node} ${styles.nodeEntity} ${styles.nodeFloat3}`}>
-          <div className={styles.nodeEntityType}>
-            <BrainIcon size={11} />
-            <span>Tech Stack</span>
-          </div>
-          <div className={styles.nodeEntityName}>React + Firebase</div>
-          <div className={styles.nodeEntityDesc}>
-            Serverless, real-time, scalable
-          </div>
-        </div>
-
-        {/* AI Sketch */}
-        <div className={`${styles.node} ${styles.nodeSketch} ${styles.nodeFloat4}`}>
-          <div className={styles.nodeSketchLabel}>
-            <ImageIcon size={11} />
-            <span>AI Sketch</span>
-          </div>
-          <div className={styles.nodeSketchImage}>
-            <div className={styles.sketchGradient} />
-            <div className={styles.sketchLines} />
-          </div>
-        </div>
-
-        {/* Mini App */}
-        <div className={`${styles.node} ${styles.nodeMiniApp} ${styles.nodeFloat5}`}>
-          <div className={styles.nodeMiniAppHeader}>
-            <PlayIcon size={10} />
-            <span>Prototype ready</span>
-            <div className={styles.nodeMiniAppDot} />
-          </div>
-          <div className={styles.nodeMiniAppPreview}>
-            <div className={styles.codeBar} style={{ width: "70%" }} />
-            <div className={styles.codeBar} style={{ width: "50%" }} />
-            <div className={styles.codeBar} style={{ width: "85%" }} />
-            <div className={styles.codeBar} style={{ width: "40%" }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Presence avatars */}
-      <div className={styles.canvasPresence}>
-        <div className={`${styles.presenceAvatar} ${styles.avatarA}`}>J</div>
-        <div className={`${styles.presenceAvatar} ${styles.avatarB}`}>M</div>
-        <div className={`${styles.presenceAvatar} ${styles.avatarC}`}>S</div>
-        <span className={styles.presenceLabel}>3 collaborating</span>
+    <div
+      className={`${styles.floatingNode} ${className} ${accent ? styles.floatingNodeAccent : ""}`}
+      style={{ animationDelay: `${delay}s` }}
+    >
+      <span className={styles.fnIcon}>{icon}</span>
+      <div>
+        <div className={styles.fnType}>{type}</div>
+        <div className={styles.fnValue}>{value}</div>
       </div>
     </div>
   );
 }
 
-/* ─── Features ────────────────────────────────────────────────── */
+/* ─── Powered By ──────────────────────────────────────────────── */
 
-const FEATURES = [
-  {
-    icon: <BrainIcon size={20} />,
-    title: "Infinite Canvas",
-    desc: "An unlimited space to think. Arrange ideas spatially with zero constraints.",
-    accent: "#ffb48c",
-  },
-  {
-    icon: <UsersIcon size={20} />,
-    title: "Real-time Collab",
-    desc: "See your team's cursors live. Every change syncs instantly across all devices.",
-    accent: "#84c5ff",
-  },
-  {
-    icon: <ImageIcon size={20} />,
-    title: "AI Concept Sketches",
-    desc: "Describe a UI and Gemini generates a concept sketch in seconds.",
-    accent: "#c084fc",
-  },
-  {
-    icon: <ZapIcon size={20} />,
-    title: "Instant Prototypes",
-    desc: "Gemini writes and runs interactive mini-apps directly on your canvas.",
-    accent: "#f97316",
-  },
-  {
-    icon: <MicIcon size={20} />,
-    title: "Voice Collaboration",
-    desc: "Brainstorm with your team using live voice powered by Gemini Live API.",
-    accent: "#34d399",
-  },
-  {
-    icon: <BookOpenIcon size={20} />,
-    title: "Project Wiki",
-    desc: "A built-in rich-text editor to document decisions, notes, and research.",
-    accent: "#fb7185",
-  },
-];
+function PoweredByStrip() {
+  const items = [
+    "Gemini AI",
+    "Firebase",
+    "React 19",
+    "WebRTC",
+    "TensorFlow.js",
+    "Apache-2.0",
+  ];
+  return (
+    <div className={styles.strip}>
+      <span className={styles.stripLabel}>Built with</span>
+      {items.map((item) => (
+        <span key={item} className={styles.stripItem}>{item}</span>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Features Bento ──────────────────────────────────────────── */
 
 function FeaturesSection() {
   return (
-    <section className={styles.features}>
-      <div className={styles.sectionInner}>
-        <div className={styles.sectionLabel}>Features</div>
-        <h2 className={styles.sectionHeading}>
+    <section className={styles.features} id="features">
+      <div className={styles.inner}>
+        <div className={styles.sectionTag}>Features</div>
+        <h2 className={styles.sectionH2}>
           Everything your product team needs
         </h2>
-        <p className={styles.sectionSubtitle}>
-          From first spark to live prototype—no context switching, no extra tools.
+        <p className={styles.sectionSub}>
+          From first spark to live prototype — no context switching, no extra tools.
         </p>
-        <div className={styles.featuresGrid}>
-          {FEATURES.map((f) => (
-            <div key={f.title} className={styles.featureCard}>
-              <div
-                className={styles.featureIcon}
-                style={{ "--icon-color": f.accent } as React.CSSProperties}
-              >
-                {f.icon}
-              </div>
-              <h3 className={styles.featureTitle}>{f.title}</h3>
-              <p className={styles.featureDesc}>{f.desc}</p>
+
+        <div className={styles.bento}>
+          {/* Wide card: Canvas */}
+          <div className={`${styles.bentoCard} ${styles.bentoWide}`}>
+            <div className={styles.bentoCardContent}>
+              <div className={styles.bentoIcon}><BrainIcon size={18} /></div>
+              <h3 className={styles.bentoTitle}>Infinite Canvas</h3>
+              <p className={styles.bentoDesc}>
+                An unlimited space to arrange ideas spatially. Pan, zoom, and
+                connect thoughts without boundaries.
+              </p>
             </div>
-          ))}
+            <CanvasPreview />
+          </div>
+
+          {/* Collab card */}
+          <div className={`${styles.bentoCard} ${styles.bentoTall}`}>
+            <div className={styles.bentoIcon}><UsersIcon size={18} /></div>
+            <h3 className={styles.bentoTitle}>Real-time Collab</h3>
+            <p className={styles.bentoDesc}>
+              See teammates' cursors live. Every edit syncs instantly.
+            </p>
+            <CollabPreview />
+          </div>
+
+          {/* AI Sketch */}
+          <div className={styles.bentoCard}>
+            <div className={styles.bentoIcon}><ImageIcon size={18} /></div>
+            <h3 className={styles.bentoTitle}>AI Concept Sketches</h3>
+            <p className={styles.bentoDesc}>
+              Describe a UI and Gemini generates a concept sketch in seconds.
+            </p>
+          </div>
+
+          {/* Prototypes */}
+          <div className={`${styles.bentoCard} ${styles.bentoWide}`}>
+            <div className={styles.bentoCardContent}>
+              <div className={styles.bentoIcon}><ZapIcon size={18} /></div>
+              <h3 className={styles.bentoTitle}>Instant Prototypes</h3>
+              <p className={styles.bentoDesc}>
+                Gemini writes and runs interactive mini-apps directly on your
+                canvas. From idea to demo in minutes.
+              </p>
+            </div>
+            <PrototypePreview />
+          </div>
+
+          {/* Voice */}
+          <div className={styles.bentoCard} id="collab">
+            <div className={styles.bentoIcon}><MicIcon size={18} /></div>
+            <h3 className={styles.bentoTitle}>Voice Collaboration</h3>
+            <p className={styles.bentoDesc}>
+              Brainstorm live with your team using Gemini Live API.
+            </p>
+            <VoicePreview />
+          </div>
+
+          {/* Wiki */}
+          <div className={styles.bentoCard}>
+            <div className={styles.bentoIcon}><BookOpenIcon size={18} /></div>
+            <h3 className={styles.bentoTitle}>Project Wiki</h3>
+            <p className={styles.bentoDesc}>
+              A built-in rich-text editor to document decisions and research.
+            </p>
+          </div>
+
+          {/* Share */}
+          <div className={styles.bentoCard}>
+            <div className={styles.bentoIcon}><GitForkIcon size={18} /></div>
+            <h3 className={styles.bentoTitle}>Fork & Share</h3>
+            <p className={styles.bentoDesc}>
+              One-click URL sharing. Fork canvases for parallel exploration.
+            </p>
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function CanvasPreview() {
+  return (
+    <div className={styles.canvasPreview}>
+      <div className={styles.cpDotGrid} />
+      <div className={`${styles.cpNode} ${styles.cpNodeRoot}`}>
+        <span className={styles.cpNodeLabel}>What are we building?</span>
+      </div>
+      <div className={`${styles.cpNode} ${styles.cpNodeA}`}>
+        <span className={styles.cpNodeType}>Persona</span>
+      </div>
+      <div className={`${styles.cpNode} ${styles.cpNodeB}`}>
+        <span className={styles.cpNodeType}>User Goal</span>
+      </div>
+      <div className={`${styles.cpNode} ${styles.cpNodeC}`}>
+        <span className={styles.cpNodeType}>Tech Stack</span>
+      </div>
+    </div>
+  );
+}
+
+function CollabPreview() {
+  return (
+    <div className={styles.collabPreview}>
+      <div className={styles.cpAvatars}>
+        <span className={`${styles.cpAvatar} ${styles.cpAvatarA}`}>J</span>
+        <span className={`${styles.cpAvatar} ${styles.cpAvatarB}`}>M</span>
+        <span className={`${styles.cpAvatar} ${styles.cpAvatarC}`}>S</span>
+      </div>
+      <div className={styles.cpStatus}>
+        <span className={styles.cpStatusDot} />
+        <span>3 collaborating now</span>
+      </div>
+    </div>
+  );
+}
+
+function PrototypePreview() {
+  return (
+    <div className={styles.protoPreview}>
+      <div className={styles.ppHeader}>
+        <PlayIcon size={10} />
+        <span>Dashboard</span>
+        <span className={styles.ppLive} />
+      </div>
+      <div className={styles.ppGrid}>
+        <div className={styles.ppCard} />
+        <div className={styles.ppCard} />
+        <div className={styles.ppChart} />
+      </div>
+    </div>
+  );
+}
+
+function VoicePreview() {
+  return (
+    <div className={styles.voicePreview}>
+      {[3, 6, 9, 12, 8, 11, 5, 9, 6, 4, 8, 10].map((h, i) => (
+        <div
+          key={i}
+          className={styles.voiceBar}
+          style={{
+            height: `${h * 3}px`,
+            animationDelay: `${i * 0.08}s`,
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
 /* ─── How It Works ────────────────────────────────────────────── */
 
-const STEPS = [
-  {
-    num: "01",
-    title: "Set your vision",
-    desc: "Start with a single prompt. Describe what you want to build and let Stormflow scaffold your brainstorm.",
-    tag: "Root Node",
-  },
-  {
-    num: "02",
-    title: "Build context",
-    desc: "Add personas, user goals, and tech constraints as structured nodes. Define who you're building for.",
-    tag: "Entity Nodes",
-  },
-  {
-    num: "03",
-    title: "Generate & ship",
-    desc: "AI sketches concepts, writes prototype code, and runs it live on the canvas. From idea to demo in minutes.",
-    tag: "AI Generation",
-  },
-];
-
 function HowItWorksSection() {
   return (
     <section className={styles.howItWorks} id="how-it-works">
-      <div className={styles.sectionInner}>
-        <div className={styles.sectionLabel}>How it works</div>
-        <h2 className={styles.sectionHeading}>
-          From idea to prototype in three steps
+      <div className={styles.inner}>
+        <div className={styles.sectionTag}>How it works</div>
+        <h2 className={styles.sectionH2}>
+          From idea to prototype, in three steps
         </h2>
-        <div className={styles.stepsRow}>
-          {STEPS.map((step, i) => (
-            <div key={step.num} className={styles.step}>
-              <div className={styles.stepNumRow}>
-                <span className={styles.stepNum}>{step.num}</span>
-                {i < STEPS.length - 1 && (
-                  <div className={styles.stepConnector} aria-hidden />
+        <a className={styles.howBtn} href="#features">
+          <PlayIcon size={12} />
+          See all features
+        </a>
+
+        <div className={styles.stepsGrid} id="ai">
+          {[
+            {
+              n: "01",
+              tag: "Root Node",
+              title: "Set your vision",
+              desc: "Start with a single canvas prompt. Describe what you want to build and scaffold your brainstorm instantly.",
+            },
+            {
+              n: "02",
+              tag: "Entity Nodes",
+              title: "Build context",
+              desc: "Add Personas, User Goals, and Tech Stack nodes. Define exactly who you're building for and why.",
+            },
+            {
+              n: "03",
+              tag: "AI Generation",
+              title: "Generate & ship",
+              desc: "Gemini sketches concepts, writes prototype code, and runs it live on the canvas. From idea to demo in minutes.",
+            },
+          ].map((s, i, arr) => (
+            <div key={s.n} className={styles.step}>
+              <div className={styles.stepTop}>
+                <span className={styles.stepNum}>{s.n}</span>
+                {i < arr.length - 1 && (
+                  <div className={styles.stepLine} aria-hidden />
                 )}
               </div>
-              <div className={styles.stepTag}>{step.tag}</div>
-              <h3 className={styles.stepTitle}>{step.title}</h3>
-              <p className={styles.stepDesc}>{step.desc}</p>
+              <span className={styles.stepTag}>{s.tag}</span>
+              <h3 className={styles.stepTitle}>{s.title}</h3>
+              <p className={styles.stepDesc}>{s.desc}</p>
             </div>
           ))}
         </div>
@@ -307,182 +428,31 @@ function HowItWorksSection() {
   );
 }
 
-/* ─── Collab Section ──────────────────────────────────────────── */
-
-function CollabSection() {
-  return (
-    <section className={styles.collab}>
-      <div className={styles.sectionInner}>
-        <div className={styles.collabLayout}>
-          <div className={styles.collabText}>
-            <div className={styles.sectionLabel}>Collaboration</div>
-            <h2 className={styles.sectionHeading}>
-              Never brainstorm alone again
-            </h2>
-            <p className={styles.collabDesc}>
-              Invite teammates to your canvas with a single link. Watch their
-              cursors move in real time, start a video huddle without leaving
-              the app, and see every change sync instantly—no refresh required.
-            </p>
-            <ul className={styles.collabFeatures}>
-              <li>
-                <span className={styles.checkDot} />
-                Live cursors with user presence
-              </li>
-              <li>
-                <span className={styles.checkDot} />
-                In-canvas video huddles
-              </li>
-              <li>
-                <span className={styles.checkDot} />
-                One-click share via URL
-              </li>
-              <li>
-                <span className={styles.checkDot} />
-                Fork canvases for parallel exploration
-              </li>
-            </ul>
-          </div>
-          <div className={styles.collabVisual}>
-            <CollabMockup />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CollabMockup() {
-  return (
-    <div className={styles.collabCard}>
-      <div className={styles.collabCardHeader}>
-        <span className={styles.collabCardDot} style={{ background: "#ff6b6b" }} />
-        <span className={styles.collabCardDot} style={{ background: "#ffd93d" }} />
-        <span className={styles.collabCardDot} style={{ background: "#6bcb77" }} />
-        <span className={styles.collabCardTitle}>Team Canvas · 3 active</span>
-      </div>
-      <div className={styles.collabCardBody}>
-        {/* Simulated cursor 1 */}
-        <div className={`${styles.cursor} ${styles.cursorA}`}>
-          <div className={styles.cursorArrow} />
-          <span className={styles.cursorName}>Jordan</span>
-        </div>
-        {/* Simulated cursor 2 */}
-        <div className={`${styles.cursor} ${styles.cursorB}`}>
-          <div className={styles.cursorArrow} />
-          <span className={styles.cursorName}>Morgan</span>
-        </div>
-        {/* Simulated node */}
-        <div className={styles.mockNode}>
-          <div className={styles.mockNodeHandle} />
-          <div className={styles.mockNodeContent}>
-            <div className={styles.mockLine} style={{ width: "80%" }} />
-            <div className={styles.mockLine} style={{ width: "60%" }} />
-          </div>
-        </div>
-        {/* Video avatars */}
-        <div className={styles.videoHuddle}>
-          <div className={`${styles.videoAvatar} ${styles.videoAvatarA}`}>J</div>
-          <div className={`${styles.videoAvatar} ${styles.videoAvatarB}`}>M</div>
-          <div className={`${styles.videoAvatar} ${styles.videoAvatarC}`}>S</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── AI Section ──────────────────────────────────────────────── */
-
-function AISection() {
-  return (
-    <section className={styles.ai}>
-      <div className={styles.aiGlow} aria-hidden />
-      <div className={styles.sectionInner}>
-        <div className={styles.aiLayout}>
-          <div className={styles.aiVisual}>
-            <AIMockup />
-          </div>
-          <div className={styles.aiText}>
-            <div className={styles.sectionLabel}>AI generation</div>
-            <h2 className={styles.sectionHeading}>
-              Describe it.<br />
-              <span className={styles.heroGradient}>Stormflow builds it.</span>
-            </h2>
-            <p className={styles.aiDesc}>
-              Select any node and ask Gemini to generate a concept sketch,
-              write prototype code, or spin up an interactive demo—directly
-              on your canvas. No copy-paste, no separate tools.
-            </p>
-            <div className={styles.aiBadge}>
-              <SparklesIcon size={14} />
-              <span>Powered by Gemini 2.0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AIMockup() {
-  return (
-    <div className={styles.aiCard}>
-      <div className={styles.aiCardPrompt}>
-        <div className={styles.aiPromptIcon}>
-          <SparklesIcon size={14} />
-        </div>
-        <span className={styles.aiPromptText}>
-          Generate a dashboard for the Solo Founder persona
-        </span>
-        <span className={styles.aiCursor}>|</span>
-      </div>
-      <div className={styles.aiCardResult}>
-        <div className={styles.aiResultHeader}>
-          <PlayIcon size={11} />
-          <span>Prototype generated</span>
-          <div className={styles.aiResultDot} />
-        </div>
-        <div className={styles.aiResultPreview}>
-          {/* Fake mini dashboard UI */}
-          <div className={styles.miniDash}>
-            <div className={styles.miniDashSidebar}>
-              <div className={styles.miniDashItem} />
-              <div className={styles.miniDashItem} />
-              <div className={styles.miniDashItem} />
-            </div>
-            <div className={styles.miniDashMain}>
-              <div className={styles.miniDashCard} />
-              <div className={styles.miniDashCard} />
-              <div className={styles.miniDashChart} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── CTA Section ─────────────────────────────────────────────── */
+/* ─── CTA ─────────────────────────────────────────────────────── */
 
 function CTASection({ onGetStarted }: { onGetStarted: () => void }) {
   return (
     <section className={styles.cta}>
-      <div className={styles.ctaGlow} aria-hidden />
-      <div className={styles.sectionInner}>
+      <div className={styles.ctaAtmo} aria-hidden />
+      <div className={styles.inner}>
         <div className={styles.ctaInner}>
-          <h2 className={styles.ctaHeading}>
-            Ready to transform how your team ideates?
+          <div className={styles.sectionTag}>Get started</div>
+          <h2 className={styles.ctaH2}>
+            Ready to transform how<br />
+            your team ideates?
           </h2>
-          <p className={styles.ctaSubtitle}>
+          <p className={styles.ctaSub}>
             Sign in with your Google account and start your first canvas in seconds.
             Free to use, no credit card required.
           </p>
-          <button className={styles.ctaPrimary} onClick={onGetStarted}>
-            Start brainstorming free
-            <ArrowRightIcon size={16} />
-          </button>
+          <div className={styles.ctaBtns}>
+            <button className={styles.btnWhite} onClick={onGetStarted}>
+              Start brainstorming free
+              <ArrowRightIcon size={15} />
+            </button>
+          </div>
           <p className={styles.ctaMeta}>
-            Backed by Firebase · Apache-2.0 open source
+            Apache-2.0 · Open source · Built on Google Labs ProductCanvas
           </p>
         </div>
       </div>
@@ -495,18 +465,15 @@ function CTASection({ onGetStarted }: { onGetStarted: () => void }) {
 function Footer() {
   return (
     <footer className={styles.footer}>
-      <div className={styles.sectionInner}>
-        <div className={styles.footerInner}>
+      <div className={styles.inner}>
+        <div className={styles.footerRow}>
           <div className={styles.footerBrand}>
-            <Logo size={20} alt="Stormflow" />
+            <Logo size={18} alt="Stormflow" />
             <span>Stormflow</span>
+            <span className={styles.footerBy}>by Accelory.net</span>
           </div>
           <p className={styles.footerMeta}>
-            &copy; 2026 Stormflow by{" "}
-            <a href="https://accelory.net" target="_blank" rel="noopener noreferrer">
-              Accelory.net
-            </a>
-            {" "}· Apache-2.0 ·{" "}
+            &copy; 2026 &middot; Apache-2.0 &middot;{" "}
             <a
               href="https://labs.google/code/experiments/product-canvas"
               target="_blank"
