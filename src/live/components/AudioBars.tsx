@@ -48,7 +48,12 @@ export default function AudioBars({
       {Array(lineCount)
         .fill(null)
         .map((_, i) => (
-          <div key={i} ref={(el) => (lines.current[i] = el!)} />
+          <div
+            key={i}
+            ref={(el) => {
+              lines.current[i] = el!;
+            }}
+          />
         ))}
     </div>
   );

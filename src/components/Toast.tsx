@@ -65,7 +65,7 @@ const SingleToast = ({
   duration,
 }: Toast) => {
   const { setToasts } = useContext(ToastContext);
-  const timerRef = useRef<NodeJS.Timeout | undefined>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hidden = hideTime !== undefined;
 
   const removeToast = () => {

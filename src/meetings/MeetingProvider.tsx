@@ -162,7 +162,7 @@ export function MeetingProvider({
     [joined, myStream, peerStreams, session]
   );
 
-  const sessionRef = useRef<RTCFireSession>();
+  const sessionRef = useRef<RTCFireSession | undefined>(undefined);
 
   useEffect(() => {
     let unsub = onValue(participantsRef, (snap) => {

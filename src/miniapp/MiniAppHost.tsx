@@ -35,7 +35,7 @@ export function MiniAppHost({
 }) {
   const { docRef, docLoading } = useDocumentContext();
   const appStateRef = child(docRef, `miniAppState/${namespace}`);
-  let [iframe, setIframe] = useState<HTMLIFrameElement>();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   let [compiledAppHtml, setCompiledAppHtml] = useState("");
   let [compiling, setCompiling] = useState(true);
   let { user } = useAuthContext();
@@ -71,7 +71,8 @@ export function MiniAppHost({
 
   // host protocol implementation (over IFRAME messages)
   useEffect(() => {
-    if (!iframe || !user || docLoading) return;
+    const iframe = iframeRef.current;
+    if (!iframe || !user || docLoading || !compiledAppHtml) return;
     let abort = new AbortController();
     let syncedState: Record<string, string> = {};
     let resolveInitialState: undefined | ((state: Record<string, any>) => void);
@@ -183,7 +184,7 @@ export function MiniAppHost({
       abort
     );
     return () => abort.abort();
-  }, [iframe, user, docLoading, appStateRef]);
+  }, [user, docLoading, appStateRef, compiledAppHtml]);
 
   return (
     <div className={cn(styles.viewer, className)}>
@@ -192,10 +193,7 @@ export function MiniAppHost({
         <>
           {error && <pre>{error}</pre>}
           {compiledAppHtml && (
-            <iframe
-              ref={(node) => setIframe(node || undefined)}
-              srcDoc={compiledAppHtml}
-            />
+            <iframe ref={iframeRef} srcDoc={compiledAppHtml} />
           )}
         </>
       )}

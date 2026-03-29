@@ -27,3 +27,4 @@ dist-ssr
 .firebase
 _sandbox
 .firebaserc
+.pnpm-store

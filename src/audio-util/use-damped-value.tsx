@@ -11,7 +11,7 @@ import { useState, useEffect, useRef } from 'react';
  */
 export function useDampedValue(targetValue: number, alpha = 0.1, initialValue = targetValue) {
   const [dampedValue, setDampedValue] = useState(initialValue);
-  const frameRef = useRef<number>();
+  const frameRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     // This function will be called on each animation frame

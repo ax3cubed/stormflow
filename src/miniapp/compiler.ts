@@ -7,7 +7,7 @@
 import { esBundle, loadEsbuild } from "./bundler";
 import hostApi from "./host-api?raw";
 
-const REACT_VERSION = "19.1.0";
+const REACT_VERSION = "19.2.4";
 
 export async function compileMiniApp(appCode: string): Promise<string> {
   await loadEsbuild();

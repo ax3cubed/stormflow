@@ -84,7 +84,9 @@ export function PresenceProvider({
   const [connected, setConnected] = useState(true);
   const [rawPresenceData, setRawPresenceData] = useState<RawPresenceData>({});
   const clientRef = child(presenceRef, String(clientId));
-  const clearPresenceTimeoutRef = useRef<any>();
+  const clearPresenceTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     if (!user) return;

@@ -145,7 +145,7 @@ function useLiveAPI({
   const ai = useGeminiApi();
 
   // live session info
-  let sessionRef = useRef<Session>();
+  let sessionRef = useRef<Session | undefined>(undefined);
   let [connected, setConnected] = useState(false);
   let [statusMessage, setStatusMessage] = useState<string>();
   let events = useMemo(() => new EventTarget(), []);

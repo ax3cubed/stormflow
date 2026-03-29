@@ -11,6 +11,7 @@ import {
   createContext,
   DependencyList,
   forwardRef,
+  type ReactElement,
   useCallback,
   useContext,
   useEffect,
@@ -122,7 +123,7 @@ export const Command = forwardRef<
     ref,
   ) => {
     let child = Children.only(children);
-    const elRef = useRef<HTMLElement>();
+    const elRef = useRef<HTMLElement | null>(null);
     const config: CommandConfig = {
       keyName,
       ctrlOrCmd,
@@ -154,9 +155,9 @@ export const Command = forwardRef<
       return child;
     }
 
-    let cloned = cloneElement(child, {
+    let cloned = cloneElement(child as ReactElement<Record<string, unknown>>, {
       ...props,
-      ref: (node: any) => {
+      ref: (node: HTMLElement | null) => {
         elRef.current = node;
         if (typeof ref === "function") {
           ref(node);
